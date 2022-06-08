@@ -1,16 +1,16 @@
-NAME = MutantStack
+NAME = VectorTest
 
 all : $(NAME)
 
 CXX = clang++ 
 
-CPPFLAGS = -std=c++98 -Wall -Wextra -Werror 
+CPPFLAGS = -std=c++98# -Wall -Wextra -Werror 
 
 TRAP = -Wshadow -Wno-shadow
 
-SRCS = 
+SRCS = main.cpp
 
-OBJS = 
+OBJS = main.o
 
 $(OBJS) : $(SRCS)
 
