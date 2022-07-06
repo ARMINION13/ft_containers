@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 17:48:49 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/06/08 20:40:33 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/07/06 18:35:41 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,12 @@ namespace ft
 				return *_ptr;
 			}
 			
+			ReverseVectorIt &operator=(ReverseVectorIt &asg)
+			{
+				*this = asg;
+				return (*this);
+			}
+			
 			bool operator==(const ReverseVectorIt& other) const
 			{
 				return _ptr == other._ptr;
@@ -82,7 +88,7 @@ namespace ft
 			}
 			
 		private:
-			value_type _ptr;    
+			value_type *_ptr;    
 	};
 	
 	template<typename Vector>
@@ -92,7 +98,7 @@ namespace ft
 			typedef typename Vector::value_type value_type;
 			typedef value_type* pointer_type;
 			typedef value_type& reference_type;
-			VectorIt() : _ptr(NULL) {};
+			VectorIt() : _ptr(0) {};
 			VectorIt(pointer_type ptr) : _ptr(ptr) {};
 			~VectorIt() {};
 			
@@ -122,7 +128,7 @@ namespace ft
 				return iterator;
 			}
 			
-			reference_type operator[](int index)
+			reference_type operator[](size_t index)
 			{
 				return *(_ptr + index);
 			}
@@ -134,7 +140,13 @@ namespace ft
 			
 			reference_type operator*()
 			{
-				return *_ptr;
+				return _ptr;
+			}
+
+			VectorIt &operator=(VectorIt &asg)
+			{
+				*this = asg;
+				return (*this);
 			}
 			
 			bool operator==(const VectorIt& other) const
@@ -148,7 +160,7 @@ namespace ft
 			}
 			
 		private:
-			value_type _ptr;    
+			value_type *_ptr;    
 	};
 	
 	template < class T, class Alloc = std::allocator<T> >
@@ -157,6 +169,8 @@ namespace ft
 		public:
 			typedef T value_type;
 			typedef Alloc allocator_type;
+			typedef ft::VectorIt<ft::Vector<value_type> > iterator;
+			typedef ft::ReverseVectorIt<ft::Vector<value_type> > reverse_iterator;
 			typedef typename Alloc::reference reference;
 			typedef typename Alloc::const_reference const_reference;
 			typedef typename Alloc::pointer pointer;
@@ -175,19 +189,52 @@ namespace ft
 			explicit Vector (size_type n, const value_type& val = value_type(),
 			 const allocator_type& alloc = allocator_type())
 			{
-				_Data = alloc.allocate(n);
+				int j = 2;
+				
+				while (j < n)
+					j = j * 2;
+				_Data = _Allocator.allocate(n);
 				for (size_type i = 0; i < n; i++)
-					alloc.construct(_Data + i, val);
+					_Allocator.construct(_Data + i, val);
 				_Size = n;
-				_Capacity = n;
+				_Capacity = j;
 			}
 			
-			// template <class InputIterator>
-			//     Vector (InputIterator first, InputIterator last,
-			//      const allocator_type& alloc = allocator_type())
-			// {
-				
-			// }
+			template <class InputIterator>
+			Vector (InputIterator first, InputIterator last, 
+				const allocator_type& alloc = allocator_type())
+			{
+				InputIterator aux = first;;
+				int  n = 0, j = 2;
+
+				while (aux++ != last)
+					n++;
+				_Data = _Allocator.allocate(n);
+				for (size_type i = 0; i < n; i++)
+					_Allocator.construct(_Data + i, first[i]);
+				_Size = n;
+				while (j < n)
+					j = j * 2;
+				_Capacity = j;
+			}
+			
+			Vector (const Vector& x)
+			{
+				*this = x;
+			}
+
+			~Vector ()
+			{
+				_Allocator.deallocate(_Data, _Size);
+			}
+
+			void operator=(Vector &asg)
+			{
+				this->_Data = asg._Data;
+				this->_Size = asg._Size;
+				this->_Capacity = asg._Capacity;
+				this->_Allocator = asg._Allocator;
+			}
 
 			//Capacity functions
 
@@ -208,58 +255,178 @@ namespace ft
 
 			//Iterator functions
 
-			ft::VectorIt<value_type> begin()
+			iterator begin()
 			{
-				ft::VectorIt<value_type> it(_Data);
+				iterator it(_Data);
 				return it;
 			}
 			
-			ft::VectorIt<value_type> end()
+			iterator end()
 			{
-				ft::VectorIt<value_type> it(_Data + _Size);
+				iterator it(_Data + _Size);
 				return it;
 			}
 			
-			const ft::VectorIt<value_type> begin() const
+			const iterator begin() const
 			{
-				const ft::VectorIt<value_type> it(_Data);
+				const iterator it(_Data);
 				return it;
 			}
 			
-			const ft::VectorIt<value_type> end() const
+			const iterator end() const
 			{
-				const ft::VectorIt<value_type> it(_Data + _Size);
+				const iterator it(_Data + _Size);
 				return it;
 			}
 			
-			ft::ReverseVectorIt<value_type> rbegin()
+			reverse_iterator rbegin()
 			{
-				ft::ReverseVectorIt<value_type> it(_Data);
+				reverse_iterator it(_Data);
 				return it;
 			}
 			
-			ft::ReverseVectorIt<value_type> rend()
+			reverse_iterator rend()
 			{
-				ft::ReverseVectorIt<value_type> it(_Data + _Size);
+				reverse_iterator it(_Data + _Size);
 				return it;
 			}
 			
-			const ft::ReverseVectorIt<value_type> rbegin() const
+			const reverse_iterator rbegin() const
 			{
-				const ft::ReverseVectorIt<value_type> it(_Data);
+				const reverse_iterator it(_Data);
 				return it;
 			}
 			
-			const ft::ReverseVectorIt<value_type> rend() const
+			const reverse_iterator rend() const
 			{
-				const ft::ReverseVectorIt<value_type> it(_Data + _Size);
+				const reverse_iterator it(_Data + _Size);
 				return it;
+			}
+
+			//Capacity
+
+			size_type size() const
+			{
+				return (_Size);	
+			}
+
+			size_type max_size() const
+			{
+				return (_Allocator.max_size());
+			}
+
+			void resize(size_type n, value_type val = value_type())
+			{
+				value_type *aux;
+				size_type j = 2;
+				
+				if (n > _Size && n < _Capacity)
+				{
+					for (size_type i = _Size; i < n; i++)
+						_Allocator.construct(_Data + i, val);
+					_Size = n;
+				}
+				if (n < _Size)
+				{
+					for (size_type i = n; i < _Size; i++)
+						_Allocator.destroy(_Data + i);
+					_Size = n;
+				}
+				if (n > _Capacity)
+				{
+					aux = _Allocator.allocate(n);
+					for (size_type i = 0; i < n; i++)
+						_Allocator.construct(aux + i, val);
+					for (size_type i = 0; i < _Size; i++)
+						aux[i] = _Data[i];
+					_Allocator.deallocate(_Data, _Size);
+					_Data = aux;
+					_Size = n;
+					while (j < _Size)
+						j = j * 2;
+					_Capacity = j;
+				}
+			}
+
+			size_type capacity() const
+			{
+				return _Capacity;
+			}
+			
+			bool empty() const
+			{
+				if (_Size == 0)
+					return true;
+				else
+					return false;
+			}
+
+			void reserve (size_type n)
+			{	
+				if (n > _Capacity)
+					_Capacity = n;
+			}
+
+			//Element access
+
+			reference operator[](size_type n)
+			{
+				return (_Data[n]);	
+			}
+
+			const_reference operator[](size_type n) const
+			{
+				return (_Data[n]);	
+			}
+			
+			reference at(size_type n)
+			{
+				if (n > _Size)
+					throw (std::out_of_range("out of range"));
+				return (_Data[n]);
+			}
+
+			const_reference at(size_type n) const
+			{
+				if (n > _Size)
+					throw (std::out_of_range("out of range"));
+				return (_Data[n]);
+			}
+
+			reference front()
+			{
+				return (_Data[0]);
+			}
+
+			const_reference front() const
+			{
+				return (_Data[0]);
+			}
+			
+			reference back()
+			{
+				return (_Data[_Size - 1]);
+			}
+
+			const_reference back() const
+			{
+				return (_Data[_Size - 1]);
+			}
+			
+			//Modifiers
+
+			//Allocator
+			
+			allocator_type get_allocator() const
+			{
+				return _Allocator;
 			}
 			
 		private:
 			value_type* _Data;
 			size_type _Size;
 			size_type _Capacity;
+			allocator_type _Allocator;
 	};
 	
 }
