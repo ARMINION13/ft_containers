@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 17:48:49 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/07/06 18:35:41 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/07/07 19:21:17 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,7 +201,7 @@ namespace ft
 			}
 			
 			template <class InputIterator>
-			Vector (InputIterator first, InputIterator last, 
+			Vector (typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last, 
 				const allocator_type& alloc = allocator_type())
 			{
 				InputIterator aux = first;;
@@ -218,40 +218,26 @@ namespace ft
 				_Capacity = j;
 			}
 			
-			Vector (const Vector& x)
+			void operator=(Vector &asg)
+			{
+				this->_Size = asg.size();
+				this->_Capacity = asg.capacity();
+				this->_Allocator = asg._Allocator;
+				
+				_Data = _Allocator.allocate(_Size);
+				for (size_type i = 0; i < _Size; i++)
+					_Allocator.construct(_Data + i, asg._Data[i]);
+			}
+			
+			Vector(Vector &x)
 			{
 				*this = x;
 			}
 
-			~Vector ()
+			~Vector()
 			{
-				_Allocator.deallocate(_Data, _Size);
-			}
-
-			void operator=(Vector &asg)
-			{
-				this->_Data = asg._Data;
-				this->_Size = asg._Size;
-				this->_Capacity = asg._Capacity;
-				this->_Allocator = asg._Allocator;
-			}
-
-			//Capacity functions
-
-			// size_type size() const
-			// {
-			//     return _Size;
-			// }
-
-			// size_type max_size() const
-			// {
-			//     return _Capacity;
-			// }
-
-			// void resize (size_type n, value_type val = value_type())
-			// {
 				
-			// }
+			}
 
 			//Iterator functions
 
@@ -414,6 +400,48 @@ namespace ft
 			}
 			
 			//Modifiers
+
+			void assign(size_type n, const value_type& val)
+			{
+				if (n > _Capacity)
+					this->resize(n);
+				for (size_type i = 0; i < n; i++)
+					_Allocator.construct(_Data + i, val);
+				_Size = n;
+				std::cout << "aaa" << std::endl;
+			}
+			
+			template <class InputIterator>
+			void assign(typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
+			{
+				InputIterator aux = first;
+				int n = 0;
+				
+				while (aux++ != last)
+					n++;
+				if (n > _Capacity)
+					this->resize(n);
+				for (size_type i = 0; i < n; i++)
+					_Allocator.construct(_Data + i, first[i]);
+				_Size = n;
+			}
+
+			void push_back(const value_type& val)
+			{
+				if (_Size >= _Capacity)
+					this->resize(_Size + 1, val);
+				else
+				{
+					_Allocator.construct(_Data + _Size, val);
+					_Size += 1;
+				}
+			}
+
+			void pop_back()
+			{
+				_Allocator.destroy(_Data + _Size);
+				_Size -= 1;			
+			}
 
 			//Allocator
 			
