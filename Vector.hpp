@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 17:48:49 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/07/07 19:21:17 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/07/21 16:23:50 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,20 @@ namespace ft
 				_ptr++;
 				return iterator;
 			}
+
+			ReverseVectorIt operator+(int n)
+			{
+				ReverseVectorIt iterator = *this;
+				iterator._ptr -= n;
+				return iterator;
+			}
+
+			ReverseVectorIt operator-(int n)
+			{
+				ReverseVectorIt iterator = *this;
+				iterator._ptr += n;
+				return iterator;
+			}
 			
 			reference_type operator[](int index)
 			{
@@ -73,7 +87,7 @@ namespace ft
 			
 			ReverseVectorIt &operator=(ReverseVectorIt &asg)
 			{
-				*this = asg;
+				this->_ptr = asg._ptr;
 				return (*this);
 			}
 			
@@ -128,6 +142,20 @@ namespace ft
 				return iterator;
 			}
 			
+			VectorIt operator+(int n)
+			{
+				VectorIt iterator = *this;
+				iterator._ptr += n;
+				return iterator;
+			}
+
+			VectorIt operator-(int n)
+			{
+				VectorIt iterator = *this;
+				iterator._ptr -= n;
+				return iterator;
+			}
+
 			reference_type operator[](size_t index)
 			{
 				return *(_ptr + index);
@@ -140,12 +168,12 @@ namespace ft
 			
 			reference_type operator*()
 			{
-				return _ptr;
+				return *_ptr;
 			}
 
-			VectorIt &operator=(VectorIt &asg)
+			VectorIt &operator=(const VectorIt &asg)
 			{
-				*this = asg;
+				this->_ptr = asg._ptr;
 				return (*this);
 			}
 			
@@ -164,13 +192,13 @@ namespace ft
 	};
 	
 	template < class T, class Alloc = std::allocator<T> >
-	class Vector
+	class vector
 	{  
 		public:
 			typedef T value_type;
 			typedef Alloc allocator_type;
-			typedef ft::VectorIt<ft::Vector<value_type> > iterator;
-			typedef ft::ReverseVectorIt<ft::Vector<value_type> > reverse_iterator;
+			typedef ft::VectorIt<ft::vector<value_type> > iterator;
+			typedef ft::ReverseVectorIt<ft::vector<value_type> > reverse_iterator;
 			typedef typename Alloc::reference reference;
 			typedef typename Alloc::const_reference const_reference;
 			typedef typename Alloc::pointer pointer;
@@ -179,21 +207,21 @@ namespace ft
 
 			//Constructor functions
 			
-			explicit Vector (const allocator_type& alloc = allocator_type())
+			explicit vector (const allocator_type& alloc = allocator_type())
 			{
 				_Data = NULL;
 				_Size = 0;
 				_Capacity = 0;
 			}
 
-			explicit Vector (size_type n, const value_type& val = value_type(),
+			explicit vector (size_type n, const value_type& val = value_type(),
 			 const allocator_type& alloc = allocator_type())
 			{
 				int j = 2;
 				
 				while (j < n)
 					j = j * 2;
-				_Data = _Allocator.allocate(n);
+				_Data = _Allocator.allocate(n + 1);
 				for (size_type i = 0; i < n; i++)
 					_Allocator.construct(_Data + i, val);
 				_Size = n;
@@ -201,7 +229,7 @@ namespace ft
 			}
 			
 			template <class InputIterator>
-			Vector (typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last, 
+			vector (typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last, 
 				const allocator_type& alloc = allocator_type())
 			{
 				InputIterator aux = first;;
@@ -209,7 +237,7 @@ namespace ft
 
 				while (aux++ != last)
 					n++;
-				_Data = _Allocator.allocate(n);
+				_Data = _Allocator.allocate(n + 1);
 				for (size_type i = 0; i < n; i++)
 					_Allocator.construct(_Data + i, first[i]);
 				_Size = n;
@@ -218,25 +246,25 @@ namespace ft
 				_Capacity = j;
 			}
 			
-			void operator=(Vector &asg)
+			void operator=(vector &asg)
 			{
 				this->_Size = asg.size();
 				this->_Capacity = asg.capacity();
 				this->_Allocator = asg._Allocator;
 				
-				_Data = _Allocator.allocate(_Size);
-				for (size_type i = 0; i < _Size; i++)
+				this->_Data = this->_Allocator.allocate(_Size + 1);
+				for (size_type i = 0; i <= _Size; i++)
 					_Allocator.construct(_Data + i, asg._Data[i]);
 			}
 			
-			Vector(Vector &x)
+			vector(vector &x)
 			{
 				*this = x;
 			}
 
-			~Vector()
+			~vector()
 			{
-				
+				this->_Allocator.deallocate(_Data, _Size);
 			}
 
 			//Iterator functions
@@ -249,7 +277,7 @@ namespace ft
 			
 			iterator end()
 			{
-				iterator it(_Data + _Size);
+				iterator it(_Data + _Size + 1);
 				return it;
 			}
 			
@@ -261,7 +289,7 @@ namespace ft
 			
 			const iterator end() const
 			{
-				const iterator it(_Data + _Size);
+				const iterator it(_Data + _Size + 1);
 				return it;
 			}
 			
@@ -273,7 +301,7 @@ namespace ft
 			
 			reverse_iterator rend()
 			{
-				reverse_iterator it(_Data + _Size);
+				reverse_iterator it(_Data + _Size + 1);
 				return it;
 			}
 			
@@ -320,7 +348,7 @@ namespace ft
 				}
 				if (n > _Capacity)
 				{
-					aux = _Allocator.allocate(n);
+					aux = _Allocator.allocate(n + 1);
 					for (size_type i = 0; i < n; i++)
 						_Allocator.construct(aux + i, val);
 					for (size_type i = 0; i < _Size; i++)
@@ -441,6 +469,113 @@ namespace ft
 			{
 				_Allocator.destroy(_Data + _Size);
 				_Size -= 1;			
+			}
+			
+			iterator insert(iterator position, const value_type& val)
+			{
+				vector aux(_Size + 1);
+				iterator ret;
+				int i = 0;
+
+				for (iterator b1 = this->begin(); b1 != this->end(); b1++)
+				{
+					if (b1 == position)
+					{
+						ret = &aux[i];
+						aux[i++] = val;
+					}
+					aux[i++] = *b1;
+				}
+				this->_Allocator.deallocate(_Data, _Size);
+				*this = aux;
+				return (ret);
+			}
+			
+			void insert(iterator position, size_type n, const value_type& val)
+			{
+				vector aux(_Size + n);
+				int i = 0;
+
+				for (iterator b1 = this->begin(); b1 != this->end(); b1++)
+				{
+					if (b1 == position)
+					{
+						for (size_type o = 0; o < n; o++)
+							aux[i++] = val;
+					}
+					aux[i++] = *b1;
+				}
+				this->_Allocator.deallocate(_Data, _Size);
+				*this = aux;
+			}
+
+			template <class InputIterator>
+   			void insert(iterator position, typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
+			{
+				size_type n = 0;
+				for(InputIterator aux = first; aux != last; aux++)
+					n++;
+				vector aux(_Size + (n - 1));
+				int i = 0;
+
+				for (iterator b1 = this->begin(); b1 != this->end(); b1++)
+				{
+					if (b1 == position)
+					{
+						for (size_type o = 0; o < (n - 1); o++)
+							aux[i++] = first[o];
+					}
+					aux[i++] = *b1;
+				}
+				this->_Allocator.deallocate(_Data, _Size);
+				*this = aux;
+			}
+
+			iterator erase(iterator position)
+			{
+				vector aux(_Size - 1);
+				iterator ret;
+				int i = 0;
+
+				for (iterator b1 = this->begin(); b1 != this->end(); b1++)
+				{
+					if (b1 == position)
+					{
+						b1++;
+						ret = &aux[i];
+					}
+					aux[i++] = *b1;
+					
+				}
+				this->_Allocator.deallocate(_Data, _Size);
+				*this = aux;
+				return (ret);
+			}
+
+			iterator erase(iterator first, iterator last)
+			{
+				size_type n = 0;
+				iterator ret = 0;
+				int i = 0;
+				for(iterator aux = first; aux != last + 1; aux++)
+					n++;
+				if (n > this->size())
+					n = this->size();
+				vector aux(_Size - (n));
+				
+				for (iterator b1 = this->begin(); b1 != this->end(); b1++)
+				{
+					if (b1 == first && first != last + 1)
+					{
+						ret = &aux[i];
+						first++;
+					}
+					else
+						aux[i++] = *b1;
+				}
+				this->_Allocator.deallocate(_Data, _Size);
+				*this = aux;
+				return (ret);
 			}
 
 			//Allocator
