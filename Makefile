@@ -4,13 +4,13 @@ all : $(NAME)
 
 CXX = clang++ 
 
-CPPFLAGS = -std=c++98# -Wall -Wextra -Werror 
+CPPFLAGS = -std=c++98 -Wall -Wextra -Werror 
 
 TRAP = -Wshadow -Wno-shadow
 
-SRCS = main.cpp
+SRCS = containers/main.cpp
 
-OBJS = main.o
+OBJS = containers/main.o
 
 $(OBJS) : $(SRCS)
 
