@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 17:48:49 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/08/19 19:13:26 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/08/22 19:58:34 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,25 @@ namespace ft
 			typedef value_type& reference_type;
 			typedef const value_type& const_reference_type;
 			typedef const value_type* const_pointer_type;
+			
 			VectorIt() : _ptr(0) {};
-
+			
 			template <typename N>
 			VectorIt(VectorIt<N> it)
 			{
 				_ptr = &(*it);
 			}
+			
 			VectorIt(value_type* ptr) : _ptr(ptr) {};
+			
 			~VectorIt() {};
+
+			template <typename N>
+			VectorIt &operator=(const VectorIt<N> &asg)
+			{
+				_ptr = &(*asg);
+				return (*this);
+			}
 			
 			VectorIt& operator++() 
 			{
@@ -79,6 +89,11 @@ namespace ft
 				return (ref + n);
 			}
 
+			friend VectorIt	operator-(int n, VectorIt &ref)
+			{
+				return (ref - n);
+			}
+			
 			VectorIt operator-(int n)
 			{
 				VectorIt iterator = *this;
@@ -130,11 +145,6 @@ namespace ft
 				return *_ptr;
 			}
 			
-			VectorIt &operator=(const VectorIt &asg)
-			{
-				this->_ptr = asg._ptr;
-				return (*this);
-			}
 			
 			template <typename N>
 			bool operator<(const VectorIt<N>& other) const
@@ -188,11 +198,40 @@ namespace ft
 		public:
 			typedef typename Vector::value_type value_type;
 			typedef typename Vector::iterator iterator;
-			typedef value_type* pointer_type;
+			typedef iterator* pointer_it;
+			typedef iterator& reference_it;
 			typedef value_type& reference_type;
+			typedef value_type* pointer_type;
+			
 			ReverseVectorIt() : _it() {};
-			ReverseVectorIt(pointer_type ptr) : _it(ptr) {};
+			
+			template <typename N>
+			ReverseVectorIt(ReverseVectorIt<N> it)
+			{
+				this->_it = it.base();
+			}
+
+			template <typename N>
+			ReverseVectorIt(VectorIt<N> it)
+			{
+				_it = it;
+			}
+			
+			ReverseVectorIt(pointer_type ptr) : _it(iterator(ptr)) {};
+			
 			~ReverseVectorIt() {};
+			
+			template <typename N>
+			ReverseVectorIt &operator=(ReverseVectorIt<N> asg)
+			{
+				this->_it = asg.base();
+				return (*this);
+			}
+			
+			reference_it base()
+			{
+				return (this->_it);
+			}
 			
 			ReverseVectorIt& operator++() 
 			{
@@ -234,9 +273,33 @@ namespace ft
 				return iterator;
 			}
 			
+			template <typename N>
+			ptrdiff_t operator-(ReverseVectorIt<N> it) const
+			{
+				return (it.base() - _it);
+			}
+			
+			template <typename N>
+			ptrdiff_t operator-(ReverseVectorIt<N> it)
+			{
+				return (it.base() - _it);
+			}
+
+			ReverseVectorIt &operator+=(int n)
+			{
+				this->_it -= n;
+				return *this;
+			}
+
+			ReverseVectorIt &operator-=(int n)
+			{
+				this->_it += n;
+				return *this;
+			}
+			
 			reference_type operator[](int index)
 			{
-				return _it[index];
+				return _it[(index + 1) * -1];
 			}
 			
 			reference_type operator*()
@@ -248,25 +311,53 @@ namespace ft
 			
 			pointer_type operator->()
 			{
-				iterator *_aux;
-				_aux = this->operator*();
-				return _aux;;
+				return &this->operator*();
+			}
+
+			friend ReverseVectorIt	operator+(int n, ReverseVectorIt &ref)
+			{
+				return (ref + n);
+			}
+
+			friend ReverseVectorIt	operator-(int n, ReverseVectorIt &ref)
+			{
+				return (ref - n);
+			}
+
+			template <typename N>
+			bool operator<(ReverseVectorIt<N> other) const
+			{
+				return _it > other.base();
 			}
 			
-			ReverseVectorIt &operator=(ReverseVectorIt &asg)
+			template <typename N>
+			bool operator>(ReverseVectorIt<N> other) const
 			{
-				this->_it = asg._it;
-				return (*this);
+				return _it < other.base();
+			}
+
+			template <typename N>
+			bool operator<=(ReverseVectorIt<N> other) const
+			{
+				return _it >= other.base();
 			}
 			
-			bool operator==(const ReverseVectorIt& other) const
+			template <typename N>
+			bool operator>=(ReverseVectorIt<N> other) const
 			{
-				return *_it == *other._it;
+				return _it <= other.base();
 			}
 			
-			bool operator!=(const ReverseVectorIt& other) const
+			template <typename N>
+			bool operator==(ReverseVectorIt<N> other) const
 			{
-				return !(*_it == *other._it);
+				return _it == other.base();
+			}
+			
+			template <typename N>
+			bool operator!=(ReverseVectorIt<N> other) const
+			{
+				return _it != other.base();
 			}
 			
 		private:

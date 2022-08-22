@@ -6,11 +6,11 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/08 18:46:21 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/08/19 19:02:02 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/08/22 19:51:08 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#  define TESTED_NAMESPACE ft
+#  define TESTED_NAMESPACE std
 
 # include <iostream>
 # include <string>
@@ -107,41 +107,58 @@ void	printSize(TESTED_NAMESPACE::vector<T> const &vct, bool print_content = true
 
 
 #include <list>
-#define TESTED_TYPE int
+#define TESTED_TYPE foo<int>
 
-template <class T, class Alloc>
-void	cmp(const TESTED_NAMESPACE::vector<T, Alloc> &lhs, const TESTED_NAMESPACE::vector<T, Alloc> &rhs)
+template <typename Ite_1, typename Ite_2>
+void ft_eq_ope(const Ite_1 &first, const Ite_2 &second, const bool redo = 1)
 {
-	static int i = 0;
-
-	std::cout << "############### [" << i++ << "] ###############"  << std::endl;
-	std::cout << "eq: " << (lhs == rhs) << " | ne: " << (lhs != rhs) << std::endl;
-	std::cout << "lt: " << (lhs <  rhs) << " | le: " << (lhs <= rhs) << std::endl;
-	std::cout << "gt: " << (lhs >  rhs) << " | ge: " << (lhs >= rhs) << std::endl;
+	std::cout << (first < second) << std::endl;
+	std::cout << (first <= second) << std::endl;
+	std::cout << (first > second) << std::endl;
+	std::cout << (first >= second) << std::endl;
+	if (redo)
+		ft_eq_ope(second, first, 0);
 }
 
 int		main(void)
 {
-	TESTED_NAMESPACE::vector<TESTED_TYPE> vct(4);
-	TESTED_NAMESPACE::vector<TESTED_TYPE> vct2(4);
+	const int size = 5;
+	TESTED_NAMESPACE::vector<TESTED_TYPE> vct(size);
+	TESTED_NAMESPACE::vector<TESTED_TYPE>::reverse_iterator it_0(vct.rbegin());
+	TESTED_NAMESPACE::vector<TESTED_TYPE>::reverse_iterator it_1(vct.rend());
+	TESTED_NAMESPACE::vector<TESTED_TYPE>::reverse_iterator it_mid;
 
-	cmp(vct, vct);  // 0
-	cmp(vct, vct2); // 1
+	TESTED_NAMESPACE::vector<TESTED_TYPE>::const_reverse_iterator cit_0 = vct.rbegin();
+	TESTED_NAMESPACE::vector<TESTED_TYPE>::const_reverse_iterator cit_1;
+	TESTED_NAMESPACE::vector<TESTED_TYPE>::const_reverse_iterator cit_mid;
 
-	vct2.resize(10);
+	for (int i = size; it_0 != it_1; --i)
+		*it_0++ = i;
+	printSize(vct, 1);
+	it_0 = vct.rbegin();
+	cit_1 = vct.rend();
+	it_mid = it_0 + 3;
+	cit_mid = it_0 + 3; cit_mid = cit_0 + 3; cit_mid = it_mid;
 
-	cmp(vct, vct2); // 2
-	cmp(vct2, vct); // 3
+	std::cout << std::boolalpha;
+	std::cout << ((it_0 + 3 == cit_0 + 3) && (cit_0 + 3 == it_mid)) << std::endl;
 
-	vct[2] = 42;
-
-	cmp(vct, vct2); // 4
-	cmp(vct2, vct); // 5
-
-	swap(vct, vct2);
-
-	cmp(vct, vct2); // 6
-	cmp(vct2, vct); // 7
+	std::cout << "\t\tft_eq_ope:" << std::endl;
+	// regular it
+	// ft_eq_ope(it_0 + 3, it_mid);
+	ft_eq_ope(it_0, it_1);
+	// ft_eq_ope(it_1 - 3, it_mid);
+	// const it
+	// ft_eq_ope(cit_0 + 3, cit_mid);
+	// ft_eq_ope(cit_0, cit_1);
+	// ft_eq_ope(cit_1 - 3, cit_mid);
+	// // both it
+	// ft_eq_ope(it_0 + 3, cit_mid);
+	// ft_eq_ope(it_mid, cit_0 + 3);
+	// ft_eq_ope(it_0, cit_1);
+	// ft_eq_ope(it_1, cit_0);
+	// ft_eq_ope(it_1 - 3, cit_mid);
+	// ft_eq_ope(it_mid, cit_1 - 3);
 
 	return (0);
 }
