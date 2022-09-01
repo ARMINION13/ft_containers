@@ -8,9 +8,9 @@ CPPFLAGS = -std=c++98 -Wall -Wextra -Werror
 
 TRAP = -Wshadow -Wno-shadow
 
-SRCS = containers/main.cpp
+SRCS = main.cpp
 
-OBJS = containers/main.o
+OBJS = main.o
 
 $(OBJS) : $(SRCS)
 
