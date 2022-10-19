@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 17:48:49 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/09/01 19:09:00 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/10/05 17:17:22 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,7 @@ namespace ft
 				for (size_type i = 0; i < this->_Size; i++)
 					_Allocator.construct(_Data + i, asg._Data[i]);
 			}			
+			
 			vector(vector &x)
 			{
 				_Size = 0;
