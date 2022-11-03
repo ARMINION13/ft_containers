@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 15:06:21 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/10/19 17:01:53 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/11/03 18:40:18 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,56 +17,89 @@
 
 namespace ft
 {
-    template<class node>
+    template<class value_type, class node>
     class map_it
     {
         public:
 
         map_it() : _root(NULL), _current(NULL) {};
+        
         map_it(node &asg)
         {
             _root = &asg;
+            
             _current = &asg;
         } 
-        map_it(map_it &asg)
+        
+        map_it(map_it const &asg)
         {
             *this = asg;   
         }
         
-        map_it operator=(map_it &asg)
+        map_it &operator=(map_it const &asg)
         {
             _root = asg._root;
             _current = asg._current;
             return (*this);
         }
         
-        map_it operator=(node &asg)
+        map_it &operator=(node &asg)
         {
-            _root = asg;
-            _current = asg;
+            _root = &asg;
+            _current = &asg;
             return (*this);
         }
 
-        map_it operator++()
+        map_it& operator++()
         {
             node *aux;
             
-            if (_current->right != NULL)
+            if (_current->_right != NULL)
             {
-                _current = _current->right;
-                while (_current->left)
-                    _current = _current->left;
+                _current = _current->_right;
+                while (_current->_left)
+                    _current = _current->_left;
             }
             else
             {
                 aux = _current;
-                _current = _current->parent;
-                while (_current->left != aux)
+                _current = _current->_parent;
+                while (_current->_left != aux)
                 {
                     aux = _current;
-                    _current = _current->parent;
+                    _current = _current->_parent;
                 }       
             }
+            return *this;
+        }
+
+        map_it operator++(int)
+        {
+            node *aux;
+            map_it it = *this;
+            
+            if (_current->_right != NULL)
+            {
+                _current = _current->_right;
+                while (_current->_left)
+                    _current = _current->_left;
+            }
+            else
+            {
+                aux = _current;
+                _current = _current->_parent;
+                while (_current->_left != aux)
+                {
+                    aux = _current;
+                    _current = _current->_parent;
+                }       
+            }
+            return it;
+        }
+
+        value_type *operator->()
+        {
+            return &((*_current)._data);
         }
         
         node &operator*()
@@ -76,7 +109,7 @@ namespace ft
 
         private:
             
-        node *_root;
-        node *_current; 
+        node        *_root;
+        node        *_current; 
     };
 }

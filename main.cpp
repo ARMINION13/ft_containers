@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/08 18:46:21 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/10/19 16:48:17 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/11/03 18:04:36 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,22 +15,20 @@
 #include <iostream>
 #include <map>
 
+#define	test ft
+
 int main()
 {
-	ft::map<int, int> mp;
+	test::map<int, int> mp1;
 
-	mp.insert(std::pair<int, int>(10, 10));
-	mp.insert(std::pair<int, int>(20, 20));
-	mp.insert(std::pair<int, int>(30, 30));
-	mp.insert(std::pair<int, int>(15, 15));
-	mp.insert(std::pair<int, int>(5, 5));
+	mp1.insert(std::pair<int, int>(10, 100));
+	mp1.insert(std::pair<int, int>(20, 200));
+	mp1.insert(std::pair<int, int>(30, 300));	
 	
-	// for (int i = 0; i < 4; i++)
-	// {
-	// 	std::cout << mp[i] << std::endl;
-	// }
-	ft::map<int, int>::iterator i = mp.begin();
-	std::cout << (*i)._data.first << "=>" << (*i)._data.second << std::endl;
-	
+	test::map<int, int>::iterator it = mp1.begin();
+	it++;
+	//for (std::map<int,int>::iterator it = mp.begin(); it != mp.end(); ++it)
+	std::cout << it->first << "=>" << it->second << '\n';
+
 	return(0);
 }

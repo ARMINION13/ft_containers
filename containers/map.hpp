@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:26:54 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/10/19 16:52:30 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/11/03 18:35:05 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,66 +17,10 @@
 #include <utility>
 #include <memory>
 #include "./utils/map_it.hpp"
+#include "./utils/bst_node.hpp"
 
 namespace ft
 {
-
-    template<class value_type, class key, class T, class Alloc >
-    class node
-    {
-        public:
-
-            value_type      _data;
-            node            *_right;
-            node            *_left;
-            node            *_parent;
-            
-            node() : _data(), _right(NULL), _left(NULL), _parent(NULL) {}
-            node(const value_type& val) : _data(val), _right(NULL), _left(NULL), _parent(NULL) {}
-            node(const node& node)
-            {
-                *this = node;
-            }
-
-            node &operator=(const node &asg)
-            {
-                _data.first = asg._data.first;
-                _data.second = asg._data.second;
-                _right = asg._right;
-                _left = asg._left;
-                return *this;
-            }
-                        
-            //Search function
-
-            node* search(node* root, key k)
-            {
-                if (root == NULL || root->_data.first == k)
-                    return root;
-                if (root->_data.first < k)
-                    return search(root->_right, k);
-                return search(root->_left, k);
-            }
-                        
-            //Node insert
-                    
-            node *Insert(node *root, const value_type& val)
-            {
-                if (!root)
-                    return (new node(val));
-                if (val.first > root->_data.first)
-                {
-                    root->_right = Insert(root->_right, val);
-                    root->_right->_parent = root;
-                }
-                else if (val.first < root->_data.first)
-                {
-                    root->_left = Insert(root->_left, val);
-                    root->_left->_parent = root;
-                }
-                return root;
-            }
-    };
     
     template<class key, class T, class Compare = std::less<key>, class Alloc = std::allocator<std::pair<const key, T> > >
     class map
@@ -94,11 +38,11 @@ namespace ft
             typedef size_t size_type;
 			typedef ptrdiff_t difference_type;
             typedef node<value_type, key, T, Alloc> node;
-            typedef map_it<node> iterator;
+            typedef map_it<value_type, node> iterator;
 
             explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
             {
-                _node = node();
+                _node->_data = alloc.allocate(1);
                 _allocator = alloc;
                 _comp = comp;
                 _size = 0;
@@ -108,8 +52,25 @@ namespace ft
             // map (typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first,
             //  InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
             // {
-                
+            //     while(first != last)
+            //     {
+            //         insert();
+            //     }
             // }
+
+            map (const map& x)
+            {
+                *this = x;
+            }
+
+            map &operator=(const map &asg)
+            {
+                _node = asg._node;
+                _comp = asg._comp;
+                _allocator = asg._allocator;
+                _size = asg._size;
+                return *this;
+            }
 
             //Access element
             
@@ -118,7 +79,7 @@ namespace ft
                 node *aux = _node.search(&_node, k);
                 if (aux == NULL)
                 {
-                    aux = _node.Insert(&_node, value_type(k, mapped_type()));
+                    aux = _node.Insert(value_type(k, mapped_type()));
                     _size++;
                 }
                 return aux->_data.second;
@@ -126,17 +87,33 @@ namespace ft
 
             //Modifiers
 
-            void insert(const value_type& val)
+            std::pair<iterator,bool> insert(const value_type& val)
             {
                 node *aux = _node.search(&_node, val.first);
+                iterator ret(*aux);
                 if (aux != NULL)
-                {
-                    
-                }
+                    return (std::pair<iterator, bool>(ret, true));
                 else
                 {
-                    _node.Insert(&_node, val);
+                    if (_size == 0)
+                        _node = node(val);    
+                    else    
+                        _node.Insert(val);
                     _size++;
+                    aux = _node.search(val.first);
+                    ret = *aux;
+                }
+                std::pair<iterator, bool> par(ret, true);
+                return (par);
+            }
+            
+            template <class InputIterator>
+            void insert (typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
+            {
+                while(first != last)
+                {
+                    insert(first._data);
+                    first++;
                 }
             }
 
@@ -170,7 +147,7 @@ namespace ft
 
             
         private:
-            node            _node;
+            node            *_node;
             key_compare     _comp;
             allocator_type  _allocator;
             size_type       _size;
