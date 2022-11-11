@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 15:06:21 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/11/03 18:40:18 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/11/11 21:11:37 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,7 @@ namespace ft
         
         map_it(node &asg)
         {
-            _root = &asg;
-            
+            _root = &asg;  
             _current = &asg;
         } 
         
