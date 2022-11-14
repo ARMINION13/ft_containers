@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 15:06:21 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/11/11 21:11:37 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/11/14 20:04:21 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,11 @@ namespace ft
 
         map_it() : _root(NULL), _current(NULL) {};
         
-        map_it(node &asg)
-        {
-            _root = &asg;  
-            _current = &asg;
-        } 
+        map_it(node *asg) 
+        { 
+            _current = asg;
+            _root = asg;
+        }
         
         map_it(map_it const &asg)
         {
@@ -104,7 +104,17 @@ namespace ft
         node &operator*()
         {
             return *_current;
-        } 
+        }
+		
+        bool operator==(const map_it& other) const
+		{
+			return (_current == other._current);
+		}
+		
+        bool operator!=(const map_it& other) const
+		{
+			return !(_current == other._current);
+		}
 
         private:
             

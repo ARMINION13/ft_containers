@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:26:54 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/11/11 21:38:50 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/11/14 19:38:09 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ namespace ft
 
             void _insert(const value_type& val)
             {
-                _insert(_node, val);
+                _node = _insert(_node, val);
             }
 
             map &operator=(const map &asg)
@@ -86,10 +86,11 @@ namespace ft
             
             mapped_type& operator[] (const key_type& k)
             {
-                node *aux = _node->search(&_node, k);
+                node *aux = _search(_node, k);
                 if (aux == NULL)
                 {
-                    aux = _node->insert(value_type(k, mapped_type()));
+                    _insert(value_type(k, mapped_type()));
+                    aux = _search(_node, k);
                     _size++;
                 }
                 return aux->_data.second;
@@ -100,14 +101,14 @@ namespace ft
             std::pair<iterator,bool> insert(const value_type& val)
             {
                 node *aux = _search(_node, val.first);
-                iterator ret(*aux);
+                iterator ret(aux);
                 if (aux != NULL)
                     return (std::pair<iterator, bool>(ret, true));
                 else
                 {
-                    if (_size == 0)
-                        _node = new node(val);    
-                    else    
+                    // if (_size == 0)
+                    //     _node = new node(val);    
+                    //else    
                         _insert(val);
                     _size++;
                     aux = _search(val.first);
@@ -131,7 +132,7 @@ namespace ft
             {
                 iterator aux;
                 _insert(&(*position), val);
-                aux = *(_search(&(*position), val));
+                aux = *(_search(&(*position), val.first));
                 return aux;
             }
 
@@ -159,17 +160,31 @@ namespace ft
 
             iterator begin()
             {
-                iterator aux(*_node);
-                return aux;
+                node *aux;
+                
+                aux = _node;
+                while (aux->_left != NULL)
+                    aux = aux->_left;
+                return iterator(aux);
             }
-
+            
+            iterator end()
+            {
+                node *aux;
+                
+                aux = _node;
+                while (aux->_end != true)
+                    aux = aux->_right;
+                return iterator(aux);
+            }
+            
         private:
 
             //Search function
 
             node* _search(node* root, key k)
             {
-                if (root == NULL || root->_data.first == k)
+                if (root == NULL || (root->_data.first == k && root->_end == false))
                     return root;
                 if (root->_data.first < k)
                     return _search(root->_right, k);
@@ -180,8 +195,16 @@ namespace ft
 
             node *_insert(node *root, const value_type& val)
             {
+                node *aux;
+                
                 if (!root)
                     return (new node(val));
+                if (root->_end == true)
+                {
+                    aux = new node(val);
+                    aux->_right = root;
+                    return (aux);
+                }
                 if (val.first > root->_data.first)
                 {
                     root->_right = _insert(root->_right, val);

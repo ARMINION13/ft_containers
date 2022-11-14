@@ -15,10 +15,11 @@ namespace ft
             node            *_left;
             node            *_parent;
             Alloc           _allocator;
+            bool            _end;
             
-            node() : _data(), _right(NULL), _left(NULL), _parent(NULL) {}
+            node() : _data(), _right(NULL), _left(NULL), _parent(NULL), _end(true) {}
             
-            node(const value_type& val) : _data(val), _right(NULL), _left(NULL), _parent(NULL) {}
+            node(const value_type& val) : _data(val), _right(NULL), _left(NULL), _parent(NULL), _end(false) {}
             
             node(const node& node)
             {
@@ -31,6 +32,7 @@ namespace ft
                 _data.second = asg._data.second;
                 _right = asg._right;
                 _left = asg._left;
+                _end = asg._end;
                 return *this;
             }
     };
