@@ -26,6 +26,11 @@ namespace ft
                 *this = node;
             }
 
+            ~node()
+            {
+                
+            }
+
             node &operator=(const node &asg)
             {
                 _data.first = asg._data.first;

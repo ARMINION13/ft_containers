@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:26:54 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/11/14 19:38:09 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/11/16 20:38:44 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,11 @@ namespace ft
                 *this = x;
             }
             
+            void _delete(key k)
+            {
+                return(_delete(_node, k));
+            }
+                         
             node *_search(key k)
             {
                 return(_search(_node, k));
@@ -191,6 +196,41 @@ namespace ft
                 return _search(root->_left, k);
             }
 
+            //Delete function
+            
+            void _delete(node * &root, key k)
+            {
+                if (root == NULL || root->_end == true)
+                    return;
+                if (root->_data.first < k)
+                    _delete(root->_right, k);
+                else if (root->_data.first > k)
+                    _delete(root->_left, k);
+                else if (root->_left != NULL && root->_right != NULL && root->_left->_end != true && root->_right->_end != true)
+                {
+                    root->_data = _find_replace(root->_right)->_data;
+                    _delete(root->_right, root->_data.first);
+                }
+                else
+                {
+                    node *aux = root;
+                    if (root->_left != NULL)      
+                        root = root->_left;
+                    else
+                        root = root->_right;
+                    root->_parent = aux->_parent;
+                    delete aux;
+                }
+            }
+
+            node *_find_replace(node *root)
+            {
+                 node *aux = root;
+                 while (aux->_left != NULL)
+                    aux = aux->_left;
+                return aux;
+            }
+
             //Node insert
 
             node *_insert(node *root, const value_type& val)
@@ -202,6 +242,7 @@ namespace ft
                 if (root->_end == true)
                 {
                     aux = new node(val);
+                    root->_parent = aux;
                     aux->_right = root;
                     return (aux);
                 }

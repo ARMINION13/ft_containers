@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 15:06:21 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/11/14 20:04:21 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/11/16 17:04:48 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,53 @@ namespace ft
                 }       
             }
             return it;
+        }
+
+        map_it operator--(int)
+        {
+            node *aux;
+            map_it it = *this;
+            
+            if (_current->_left != NULL)
+            {
+                _current = _current->_left;
+                while (_current->_right)
+                    _current = _current->_right;
+            }
+            else
+            {
+                aux = _current;
+                _current = _current->_parent;
+                while (_current->_right != aux)
+                {
+                    aux = _current;
+                    _current = _current->_parent;
+                }       
+            }
+            return it;
+        }
+
+        map_it operator--()
+        {
+            node *aux;
+            
+            if (_current->_left != NULL)
+            {
+                _current = _current->_left;
+                while (_current->_right)
+                    _current = _current->_right;
+            }
+            else
+            {
+                aux = _current;
+                _current = _current->_parent;
+                while (_current->_right != aux)
+                {
+                    aux = _current;
+                    _current = _current->_parent;
+                }       
+            }
+            return *this;
         }
 
         value_type *operator->()
