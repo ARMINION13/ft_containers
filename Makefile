@@ -2,9 +2,17 @@ NAME = VectorTest
 
 all : $(NAME)
 
-CXX = clang++ 
+ifdef WSL_DISTRO_NAME
+	
+CXX = g++ #for linux
+CPPFLAGS = -std=c++11 -Wall -Wextra -Werror
 
-CPPFLAGS = -std=c++98 -Wall -Wextra -Werror 
+else 
+	
+CXX = clang++ #for mac
+CPPFLAGS = -std=c++98 -Wall -Wextra -Werror
+
+endif
 
 TRAP = -Wshadow -Wno-shadow
 

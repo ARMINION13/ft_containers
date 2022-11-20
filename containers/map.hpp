@@ -16,6 +16,7 @@
 #include <iostream>
 #include <utility>
 #include <memory>
+#include <cstddef>
 #include "./utils/map_it.hpp"
 #include "./utils/bst_node.hpp"
 
@@ -37,7 +38,7 @@ namespace ft
             typedef typename allocator_type::const_pointer const_pointer;
             typedef size_t size_type;
 			typedef ptrdiff_t difference_type;
-            typedef node<value_type, Alloc> node;
+            typedef ft::node<value_type, Alloc> node;
             typedef map_it<value_type, node> iterator;
 
             explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())

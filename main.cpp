@@ -15,6 +15,7 @@
 #include <iostream>
 #include <map>
 
+
 #define	test ft
 
 int main()
@@ -25,7 +26,7 @@ int main()
 	mp1.insert(std::pair<int, int>(20, 200));
 	mp1.insert(std::pair<int, int>(30, 300));	
 	mp1.insert(std::pair<int, int>(15, 150));
-	mp1._delete(20);
+	//mp1._delete(20);
 	
 	for (test::map<int,int>::iterator it1 = mp1.end(); it1 != mp1.begin(); it1--)
 	{
