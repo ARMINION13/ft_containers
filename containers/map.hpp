@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:26:54 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/11/16 20:38:44 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/11/23 18:40:51 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ namespace ft
             typedef ft::node<value_type, Alloc> node;
             typedef map_it<value_type, node> iterator;
 
+            //constructors, destructors & operator=
+
             explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
             {
                 _node = new node();
@@ -49,35 +51,24 @@ namespace ft
                 _size = 0;
             }
             
-            // template <class InputIterator>
-            // map (typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first,
-            //  InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
-            // {
-            //     while(first != last)
-            //     {
-            //         insert();
-            //     }
-            // }
+            template <class InputIterator>
+            map (typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first,
+             InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
+            {
+                while(first != last)
+                {
+                    insert(first._data);
+                    first++;
+                }
+                _allocator = alloc;
+                _comp = comp;
+            }
 
             map (const map& x)
             {
                 *this = x;
             }
             
-            void _delete(key k)
-            {
-                return(_delete(_node, k));
-            }
-                         
-            node *_search(key k)
-            {
-                return(_search(_node, k));
-            }            
-
-            void _insert(const value_type& val)
-            {
-                _node = _insert(_node, val);
-            }
 
             map &operator=(const map &asg)
             {
@@ -87,6 +78,7 @@ namespace ft
                 _size = asg._size;
                 return *this;
             }
+
 
             //Access element
             
@@ -101,6 +93,22 @@ namespace ft
                 }
                 return aux->_data.second;
             }
+            
+            mapped_type& at(const key_type& k)
+            {
+                node *aux = _search(_node, k);
+                if (aux == NULL)
+					throw (std::out_of_range("out of range"));
+                return aux->_data.second;
+            }
+            
+            const mapped_type& at(const key_type& k) const
+            {
+                node *aux = _search(_node, k);
+                if (aux == NULL)
+					throw (std::out_of_range("out of range"));
+                return aux->_data.second;
+            }
 
             //Modifiers
 
@@ -112,10 +120,7 @@ namespace ft
                     return (std::pair<iterator, bool>(ret, true));
                 else
                 {
-                    // if (_size == 0)
-                    //     _node = new node(val);    
-                    //else    
-                        _insert(val);
+                    _insert(val);
                     _size++;
                     aux = _search(val.first);
                     ret = *aux;
@@ -141,6 +146,42 @@ namespace ft
                 aux = *(_search(&(*position), val.first));
                 return aux;
             }
+
+            void erase(iterator position)
+            {
+                _delete(position->first);
+            }
+            
+            size_type erase(const key_type& k)
+            {
+                size_type aux = _size;
+                _delete(k);
+                return (aux - _size);
+            }
+            
+            template <class InputIterator>
+            void erase(typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, iterator last)
+            {
+                while (first != last)
+                {
+                    _delete(first->first);
+                    first++;
+                }
+            }
+
+            void swap (map& x)
+            {
+				node *mp1 = this->_node;
+				node *mp2 = x._node;
+				map<key, T> aux(*this);
+
+				this->_size = x._size;
+				x._size = aux.size();
+				this->_allocator = x._allocator;
+				x._comp = aux.get_allocator();
+				x._Data = mp1;
+				this->_Data = mp2;
+			}
 
             //Capacity
 
@@ -183,8 +224,34 @@ namespace ft
                     aux = aux->_right;
                 return iterator(aux);
             }
+
+            //get allocator
+
+            allocator_type get_allocator() const
+            {
+                return (this->_allocator);
+            }
             
         private:
+
+        //first calls
+            
+            void _delete(key k)
+            {
+                _delete(_node, k);
+            }
+
+            node *_search(key k)
+            {
+                return(_search(_node, k));
+            }            
+
+            void _insert(const value_type& val)
+            {
+                _node = _insert(_node, val);
+            }
+            
+        //second calls
 
             //Search function
 
@@ -221,6 +288,7 @@ namespace ft
                         root = root->_right;
                     root->_parent = aux->_parent;
                     delete aux;
+                    _size--;
                 }
             }
 
