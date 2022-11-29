@@ -183,6 +183,11 @@ namespace ft
 				this->_Data = mp2;
 			}
 
+            void clear()
+            {
+                erase<iterator>(begin(), --end());
+            }
+
             //Capacity
 
             size_type size() const
@@ -238,7 +243,7 @@ namespace ft
             
             void _delete(key k)
             {
-                _delete(_node, k);
+                _delete((_node), k);
             }
 
             node *_search(key k)
@@ -284,11 +289,11 @@ namespace ft
                     node *aux = root;
                     if (root->_left != NULL)      
                         root = root->_left;
-                    else
+                    else if (root->_right != NULL)
                         root = root->_right;
                     root->_parent = aux->_parent;
                     delete aux;
-                    _size--;
+                    --_size;
                 }
             }
 
