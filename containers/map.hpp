@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:26:54 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/11/23 18:40:51 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/12/07 17:39:30 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,13 @@ namespace ft
                 }
                 return aux->_data.second;
             }
+
+            node *biggest(node *root)
+            {
+                while (root->_right != NULL && root->_right->_end != true)
+                    root = root->_right;
+                return root;
+            }
             
             mapped_type& at(const key_type& k)
             {
@@ -162,11 +169,23 @@ namespace ft
             template <class InputIterator>
             void erase(typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, iterator last)
             {
-                while (first != last)
+                InputIterator aux = first;
+                size_t i = 0;
+                
+                while (aux != NULL && aux != last)
                 {
-                    _delete(first->first);
-                    first++;
+                    i++;
+                    aux++;
                 }
+                key_type str[i];
+                aux = first;
+                for (size_t o = 0; o < i; o++)
+                {
+                    str[o] = aux->first;
+                    aux++;
+                }
+                for (size_t o = 0; o < i; o++)
+                    _delete(str[o]);                
             }
 
             void swap (map& x)
@@ -185,7 +204,7 @@ namespace ft
 
             void clear()
             {
-                erase<iterator>(begin(), --end());
+                erase<iterator>(begin(), end());
             }
 
             //Capacity
@@ -243,7 +262,8 @@ namespace ft
             
             void _delete(key k)
             {
-                _delete((_node), k);
+                _delete(_node, k);
+                _node->_parent = NULL;
             }
 
             node *_search(key k)
@@ -254,6 +274,7 @@ namespace ft
             void _insert(const value_type& val)
             {
                 _node = _insert(_node, val);
+                _node->_parent = NULL;
             }
             
         //second calls
@@ -274,7 +295,7 @@ namespace ft
             void _delete(node * &root, key k)
             {
                 if (root == NULL || root->_end == true)
-                    return;
+                    return ;
                 if (root->_data.first < k)
                     _delete(root->_right, k);
                 else if (root->_data.first > k)
@@ -289,9 +310,15 @@ namespace ft
                     node *aux = root;
                     if (root->_left != NULL)      
                         root = root->_left;
-                    else if (root->_right != NULL)
+                    else
                         root = root->_right;
-                    root->_parent = aux->_parent;
+                    if (root != NULL && root->_parent)
+                        root->_parent = aux->_parent;
+                    if (aux->_right != NULL && (aux->_right->_end == true && root != aux))
+                    {
+                        biggest(root)->_right = aux->_right;
+                        aux->_right->_parent = biggest(root);
+                    }
                     delete aux;
                     --_size;
                 }
