@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:26:54 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/12/07 17:39:30 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/12/13 14:43:46 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ namespace ft
             typedef T mapped_type;
             typedef std::pair<key, T> value_type;
             typedef std::less<key_type> key_compare;
+            typedef ft::value_compare<key, T, Compare, Alloc> value_compare;
             typedef std::allocator<value_type> allocator_type;
             typedef typename allocator_type::reference reference;
             typedef typename allocator_type::const_reference const_reference;
@@ -238,6 +239,16 @@ namespace ft
                     aux = aux->_left;
                 return iterator(aux);
             }
+
+            const_iterator cbegin()
+            {
+                node *aux;
+                
+                aux = _node;
+                while (aux->_left != NULL)
+                    aux = aux->_left;
+                return const_iterator(aux);
+            }
             
             iterator end()
             {
@@ -248,12 +259,89 @@ namespace ft
                     aux = aux->_right;
                 return iterator(aux);
             }
+            
+            const_iterator cend()
+            {
+                node *aux;
+                
+                aux = _node;
+                while (aux->_end != true)
+                    aux = aux->_right;
+                return const_iterator(aux);
+            }
 
             //get allocator
 
             allocator_type get_allocator() const
             {
                 return (this->_allocator);
+            }
+
+            //observers
+
+            key_compare key_comp() const
+            {
+                key_compare aux(_comp);
+
+                return aux;
+            }
+
+            value_compare value_comp() const
+            {
+                value_comp aux(_comp);
+
+                return aux;
+            }
+
+            // value_compare member definition
+                        
+            template <class Key, class T, class Compare, class Alloc>
+            class value_compare
+            {
+                friend class map;
+                protected:
+                
+                    Compare comp;
+                    value_compare (Compare c) : comp(c) {}
+                
+                public:
+                
+                    bool operator() (const value_type& x, const value_type& y) const
+                    {
+                        return comp(x.first, y.first);
+                    }
+            };
+
+            // operations
+
+            iterator find(const key_type& k)
+            {
+                node *aux;
+                
+                aux = _search(k);
+                if (aux == NULL)
+                    return end();
+                else
+                    return (iterator(aux));
+            }
+            
+            const_iterator find(const key_type& k) const
+            {
+                node *aux;
+                
+                aux = _search(k);
+                if (aux == NULL)
+                    return cend();
+                else
+                    return (const_iterator(aux)); 
+            }
+            
+            size_type count(const key_type& k) const
+            {
+                if (_search(k) != NULL)
+                    return 1;
+                else
+                    return 0;
             }
             
         private:
@@ -359,6 +447,7 @@ namespace ft
                 }
                 return root;
             }
+
             
         private:
             node            *_node;
