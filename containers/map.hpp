@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:26:54 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/12/13 14:43:46 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/12/21 18:01:36 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,31 @@ namespace ft
     class map
     {
         public:
+            
             typedef key key_type;
             typedef T mapped_type;
             typedef std::pair<key, T> value_type;
             typedef std::less<key_type> key_compare;
-            typedef ft::value_compare<key, T, Compare, Alloc> value_compare;
+            
+            // value_compare member definition
+                        
+            class value_compare : std::binary_function<value_type, value_type, bool>
+            {
+                friend class map<key, T, Compare, Alloc>;
+                
+                protected:
+                
+                    Compare comp;
+                    value_compare (Compare c) : comp(c) {}
+                
+                public:
+                
+                    bool operator() (const value_type& x, const value_type& y) const
+                    {
+                        return comp(x.first, y.first);
+                    }
+            };
+            
             typedef std::allocator<value_type> allocator_type;
             typedef typename allocator_type::reference reference;
             typedef typename allocator_type::const_reference const_reference;
@@ -41,6 +61,8 @@ namespace ft
 			typedef ptrdiff_t difference_type;
             typedef ft::node<value_type, Alloc> node;
             typedef map_it<value_type, node> iterator;
+            typedef map_it<const value_type, node> const_iterator;
+            
 
             //constructors, destructors & operator=
 
@@ -288,29 +310,10 @@ namespace ft
 
             value_compare value_comp() const
             {
-                value_comp aux(_comp);
+                value_compare aux(_comp);
 
                 return aux;
             }
-
-            // value_compare member definition
-                        
-            template <class Key, class T, class Compare, class Alloc>
-            class value_compare
-            {
-                friend class map;
-                protected:
-                
-                    Compare comp;
-                    value_compare (Compare c) : comp(c) {}
-                
-                public:
-                
-                    bool operator() (const value_type& x, const value_type& y) const
-                    {
-                        return comp(x.first, y.first);
-                    }
-            };
 
             // operations
 
@@ -342,6 +345,54 @@ namespace ft
                     return 1;
                 else
                     return 0;
+            }
+            
+            iterator lower_bound(const key_type& k)
+            {
+                iterator beg = begin();
+                iterator en = end();
+
+                while  (beg != en)
+                {
+                    if (_comp(beg->first, k) == false)
+                        break;
+                    beg++;
+                }
+                return beg;
+            }
+            
+            const_iterator lower_bound(const key_type& k) const
+            {
+                return const_iterator(lower_bound(k));
+            }
+
+            iterator upper_bound (const key_type& k)
+            {
+                iterator beg = begin();
+                iterator en = end();
+
+                while  (beg != en)
+                {
+                    if (_comp(k, beg->first) == true)
+                        break;
+                    beg++;
+                }
+                return beg;
+            }
+            
+            const_iterator upper_bound(const key_type& k) const
+            {
+                return const_iterator(upper_bound(k));
+            }
+
+            std::pair<const_iterator,const_iterator> equal_range(const key_type& k) const
+            {
+                return std::pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k));
+            }
+            
+            std::pair<iterator,iterator> equal_range(const key_type& k)
+            {
+                return std::pair<iterator, iterator>(lower_bound(k), upper_bound(k));
             }
             
         private:
