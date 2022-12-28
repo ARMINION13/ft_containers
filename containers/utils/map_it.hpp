@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 15:06:21 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/11/16 17:04:48 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/12/28 20:20:53 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,17 +35,10 @@ namespace ft
             *this = asg;   
         }
         
-        map_it &operator=(map_it const &asg)
-        {
+        map_it &operator=(const map_it &asg)
+        {            
             _root = asg._root;
             _current = asg._current;
-            return (*this);
-        }
-        
-        map_it &operator=(node &asg)
-        {
-            _root = &asg;
-            _current = &asg;
             return (*this);
         }
 
@@ -142,13 +135,13 @@ namespace ft
             }
             return *this;
         }
-
-        value_type *operator->()
+        
+        value_type *operator->() const
         {
             return &((*_current)._data);
         }
         
-        node &operator*()
+        node &operator*() const
         {
             return *_current;
         }
@@ -167,5 +160,100 @@ namespace ft
             
         node        *_root;
         node        *_current; 
+    };
+    
+    template<class value_type, class node>
+    class reverse_map_it
+    {
+        public:
+        
+        typedef map_it<value_type, node> map_it;
+
+        reverse_map_it() : _it() {};
+        
+        reverse_map_it(node *asg) 
+        { 
+            _it = map_it(asg);
+        }
+        
+        reverse_map_it(map_it const &asg)
+        {
+            _it = asg;   
+        }
+        
+        reverse_map_it(reverse_map_it const &asg)
+        {
+            *this = asg;
+        }
+        
+        reverse_map_it &operator=(map_it const &asg)
+        {
+            _it = asg;
+            return (*this);
+        }
+        
+        reverse_map_it &operator=(node &asg)
+        {
+            _it = map_it(asg);
+            return (*this);
+        }
+
+        reverse_map_it &operator=(reverse_map_it const &asg)
+        {
+            this->_it = asg->_it;
+            return (*this);
+        }
+
+        reverse_map_it& operator++()
+        {
+            _it--;
+            return *this;
+        }
+
+        reverse_map_it operator++(int)
+        {
+            reverse_map_it aux = *this;
+            _it--;
+            return aux;
+        }
+
+        reverse_map_it operator--(int)
+        {
+            reverse_map_it aux = *this;
+            _it++;
+            return aux;
+        }
+
+        reverse_map_it operator--()
+        {
+            _it++;
+            return *this;
+        }
+
+        value_type *operator->()
+        {
+            return &this->operator*();
+        }
+        
+        node &operator*()
+        {
+            map_it _aux = _it;
+			_aux--;
+			return *_aux;
+        }
+		
+        bool operator==(const map_it& other) const
+		{
+			return (_it == other._it);
+		}
+		
+        bool operator!=(const map_it& other) const
+		{
+			return !(_it == other._it);
+		}
+
+        private:
+            
+        map_it _it;
     };
 }

@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:26:54 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/12/21 18:01:36 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/12/28 20:29:35 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,30 @@
 
 namespace ft
 {
+    template <class f,class s>
+    class pair
+    {
+        public :
+            typedef f first_type;
+            typedef s second_type;
+
+            first_type first;
+            second_type second;
+            
+            pair() : first(), second() {};
+            template<class a, class b>
+            pair (const pair<a, b>& asg) : first(asg.first), second(asg.second) {};
+            pair (const first_type& asg1, const second_type& asg2) : first(asg1), second(asg2) {};
+            pair& operator=(const pair& asg)
+            {
+                this->first = asg.first;
+                this->second = asg.second;
+                return (*this);
+            }
+    };
+ 
     
-    template<class key, class T, class Compare = std::less<key>, class Alloc = std::allocator<std::pair<const key, T> > >
+    template<class key, class T, class Compare = std::less<key>, class Alloc = std::allocator<pair<const key, T> > >
     class map
     {
         public:
@@ -62,6 +84,8 @@ namespace ft
             typedef ft::node<value_type, Alloc> node;
             typedef map_it<value_type, node> iterator;
             typedef map_it<const value_type, node> const_iterator;
+            typedef reverse_map_it<value_type, Alloc> reverse_iterator;
+            typedef reverse_map_it<const value_type, Alloc> const_reverse_iterator;
             
 
             //constructors, destructors & operator=
@@ -78,9 +102,10 @@ namespace ft
             map (typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first,
              InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
             {
+                _node = new node();
                 while(first != last)
                 {
-                    insert(first._data);
+                    insert(*first);
                     first++;
                 }
                 _allocator = alloc;
@@ -153,7 +178,7 @@ namespace ft
                     _insert(val);
                     _size++;
                     aux = _search(val.first);
-                    ret = *aux;
+                    ret = iterator(aux);
                 }
                 std::pair<iterator, bool> par(ret, true);
                 return (par);
@@ -261,8 +286,8 @@ namespace ft
                     aux = aux->_left;
                 return iterator(aux);
             }
-
-            const_iterator cbegin()
+            
+            const_iterator begin() const
             {
                 node *aux;
                 
@@ -271,7 +296,7 @@ namespace ft
                     aux = aux->_left;
                 return const_iterator(aux);
             }
-            
+
             iterator end()
             {
                 node *aux;
@@ -281,8 +306,8 @@ namespace ft
                     aux = aux->_right;
                 return iterator(aux);
             }
-            
-            const_iterator cend()
+
+            const_iterator end() const
             {
                 node *aux;
                 
@@ -292,6 +317,30 @@ namespace ft
                 return const_iterator(aux);
             }
 
+            reverse_iterator rbegin()
+            {
+                reverse_iterator aux = end();
+                return aux;
+            }
+            
+            const_reverse_iterator rbegin() const
+            {
+                const_reverse_iterator aux = end();
+                return aux;
+            }
+
+            reverse_iterator rend()
+            {
+                reverse_iterator aux = begin();
+                return aux;
+            }
+
+            const_reverse_iterator rend() const
+            {
+                const_reverse_iterator aux = begin();
+                return aux;
+            }
+            
             //get allocator
 
             allocator_type get_allocator() const
@@ -334,7 +383,7 @@ namespace ft
                 
                 aux = _search(k);
                 if (aux == NULL)
-                    return cend();
+                    return end();
                 else
                     return (const_iterator(aux)); 
             }
@@ -352,7 +401,7 @@ namespace ft
                 iterator beg = begin();
                 iterator en = end();
 
-                while  (beg != en)
+                while(beg != en)
                 {
                     if (_comp(beg->first, k) == false)
                         break;
@@ -363,15 +412,24 @@ namespace ft
             
             const_iterator lower_bound(const key_type& k) const
             {
-                return const_iterator(lower_bound(k));
+                const_iterator beg = begin();
+                const_iterator en = end();
+
+                while(beg != en)
+                {
+                    if (_comp(beg->first, k) == false)
+                        break;
+                    beg++;
+                }
+                return beg;
             }
 
-            iterator upper_bound (const key_type& k)
+            iterator upper_bound(const key_type& k)
             {
                 iterator beg = begin();
                 iterator en = end();
 
-                while  (beg != en)
+                while(beg != en)
                 {
                     if (_comp(k, beg->first) == true)
                         break;
@@ -382,17 +440,26 @@ namespace ft
             
             const_iterator upper_bound(const key_type& k) const
             {
-                return const_iterator(upper_bound(k));
+                const_iterator beg = begin();
+                const_iterator en = end();
+
+                while(beg != en)
+                {
+                    if (_comp(k, beg->first) == true)
+                        break;
+                    beg++;
+                }
+                return beg;
             }
 
-            std::pair<const_iterator,const_iterator> equal_range(const key_type& k) const
+            pair<const_iterator,const_iterator> equal_range(const key_type& k) const
             {
-                return std::pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k));
+                return pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k));
             }
             
-            std::pair<iterator,iterator> equal_range(const key_type& k)
+            pair<iterator,iterator> equal_range(const key_type& k)
             {
-                return std::pair<iterator, iterator>(lower_bound(k), upper_bound(k));
+                return pair<iterator, iterator>(lower_bound(k), upper_bound(k));
             }
             
         private:

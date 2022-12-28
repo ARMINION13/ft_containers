@@ -6,40 +6,73 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/08 18:46:21 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/12/07 17:08:45 by rgirondo         ###   ########.fr       */
+/*   Updated: 2022/12/28 20:29:05 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./containers/map.hpp"
-#include <vector>
-#include <iostream>
-#include <map>
+#include "common.hpp"
+#include <list>
 
+#define T1 int
+#define T2 foo<int>
+typedef TESTED_NAMESPACE::map<T1, T2>::value_type T3;
+typedef TESTED_NAMESPACE::map<T1, T2>::iterator ft_iterator;
+typedef TESTED_NAMESPACE::map<T1, T2>::const_iterator ft_const_iterator;
 
-#define	test ft
+static int iter = 0;
 
-int main()
+template <typename MAP>
+void	ft_bound(MAP &mp, const T1 &param)
 {
-	test::map<int, int> mp1;
+	ft_iterator ite = mp.end(), it[2];
+	_pair<ft_iterator, ft_iterator> ft_range;
 
-	mp1.insert(std::pair<int, int>(10, 100));
-	mp1.insert(std::pair<int, int>(20, 200));
-	mp1.insert(std::pair<int, int>(30, 300));	
-	mp1.insert(std::pair<int, int>(15, 150));
-	//mp1.erase(10);
-	//mp1.erase(15);
-	//mp1.erase(20);
-	//mp1.erase(30);
-	mp1.clear();
+	std::cout << "\t-- [" << iter++ << "] --" << std::endl;
+	std::cout << "with key [" << param << "]:" << std::endl;
+	it[0] = mp.lower_bound(param); it[1] = mp.upper_bound(param);
+	ft_range = mp.equal_range(param);
+	std::cout << "lower_bound: " << (it[0] == ite ? "end()" : printPair(it[0], false)) << std::endl;
+	std::cout << "upper_bound: " << (it[1] == ite ? "end()" : printPair(it[1], false)) << std::endl;
+	std::cout << "equal_range: " << (ft_range.first == it[0] && ft_range.second == it[1]) << std::endl;
+}
 
-	
-	for (test::map<int,int>::iterator it1 = mp1.begin(); it1 != mp1.end(); it1++)
-	{
-		std::cout << "map: ";
-		std::cout << it1->first << "=>" << it1->second << '\n';
-	}
-	std::cout << "root = " << mp1.begin()->first << std::endl;
-	std::cout << "[0] = " << mp1[0] << '\n';
-	std::cout << "size = " << mp1.size() << std::endl;
-	return(0);
+template <typename MAP>
+void	ft_const_bound(const MAP &mp, const T1 &param)
+{
+	ft_const_iterator ite = mp.end(), it[2];
+	_pair<ft_const_iterator, ft_const_iterator> ft_range;
+
+	std::cout << "\t-- [" << iter++ << "] (const) --" << std::endl;
+	std::cout << "with key [" << param << "]:" << std::endl;
+	it[0] = mp.lower_bound(param); it[1] = mp.upper_bound(param);
+	ft_range = mp.equal_range(param);
+	std::cout << "lower_bound: " << (it[0] == ite ? "end()" : printPair(it[0], false)) << std::endl;
+	std::cout << "upper_bound: " << (it[1] == ite ? "end()" : printPair(it[1], false)) << std::endl;
+	std::cout << "equal_range: " << (ft_range.first == it[0] && ft_range.second == it[1]) << std::endl;
+}
+
+int		main(void)
+{
+	std::list<T3> lst;
+	unsigned int lst_size = 10;
+	for (unsigned int i = 0; i < lst_size; ++i)
+		lst.push_back(T3(i + 1, (i + 1) * 3));
+	TESTED_NAMESPACE::map<T1, T2> mp(lst.begin(), lst.end());
+	printSize(mp);
+
+	ft_const_bound(mp, -10);
+	ft_const_bound(mp, 1);
+	ft_const_bound(mp, 5);
+	ft_const_bound(mp, 10);
+	ft_const_bound(mp, 50);
+
+	printSize(mp);
+
+	mp.lower_bound(3)->second = 404;
+	mp.upper_bound(7)->second = 842;
+	ft_bound(mp, 5);
+	ft_bound(mp, 7);
+
+	printSize(mp);
+	return (0);
 }
