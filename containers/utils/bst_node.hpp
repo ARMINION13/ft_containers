@@ -40,5 +40,6 @@ namespace ft
                 _end = asg._end;
                 return *this;
             }
+
     };
 }

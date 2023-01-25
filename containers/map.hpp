@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:26:54 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/12/28 20:29:35 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/01/25 22:23:31 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 
 namespace ft
 {
+    
     template <class f,class s>
     class pair
     {
@@ -52,10 +53,10 @@ namespace ft
             
             typedef key key_type;
             typedef T mapped_type;
-            typedef std::pair<key, T> value_type;
-            typedef std::less<key_type> key_compare;
+            typedef ft::pair<key, T> value_type;
+            typedef Compare key_compare;
             
-            // value_compare member definition
+        // value_compare member definition
                         
             class value_compare : std::binary_function<value_type, value_type, bool>
             {
@@ -63,18 +64,19 @@ namespace ft
                 
                 protected:
                 
-                    Compare comp;
-                    value_compare (Compare c) : comp(c) {}
+                    Compare _comp;
+                    value_compare (Compare c) : _comp(c) {}
                 
                 public:
                 
-                    bool operator() (const value_type& x, const value_type& y) const
+                    template<typename N, typename F>
+                    bool operator() (const N& x, const F& y) const
                     {
-                        return comp(x.first, y.first);
+                        return _comp(x.first, y.first);
                     }
             };
             
-            typedef std::allocator<value_type> allocator_type;
+            typedef Alloc allocator_type;
             typedef typename allocator_type::reference reference;
             typedef typename allocator_type::const_reference const_reference;
             typedef typename allocator_type::pointer pointer;
@@ -84,11 +86,11 @@ namespace ft
             typedef ft::node<value_type, Alloc> node;
             typedef map_it<value_type, node> iterator;
             typedef map_it<const value_type, node> const_iterator;
-            typedef reverse_map_it<value_type, Alloc> reverse_iterator;
-            typedef reverse_map_it<const value_type, Alloc> const_reverse_iterator;
+            typedef reverse_map_it<iterator> reverse_iterator;
+            typedef reverse_map_it<const_iterator> const_reverse_iterator;
             
 
-            //constructors, destructors & operator=
+        //constructors, destructors & operator=
 
             explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
             {
@@ -103,9 +105,10 @@ namespace ft
              InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
             {
                 _node = new node();
+                _size = 0;
                 while(first != last)
                 {
-                    insert(*first);
+                    this->insert(*first);
                     first++;
                 }
                 _allocator = alloc;
@@ -116,19 +119,19 @@ namespace ft
             {
                 *this = x;
             }
-            
 
             map &operator=(const map &asg)
             {
-                _node = asg._node;
+                _node = new node();
+                _size = 0;
+                this->insert(asg.begin(), asg.end());
                 _comp = asg._comp;
                 _allocator = asg._allocator;
                 _size = asg._size;
                 return *this;
             }
 
-
-            //Access element
+        //Access element
             
             mapped_type& operator[] (const key_type& k)
             {
@@ -165,14 +168,14 @@ namespace ft
                 return aux->_data.second;
             }
 
-            //Modifiers
+        //Modifiers
 
-            std::pair<iterator,bool> insert(const value_type& val)
+            ft::pair<iterator,bool> insert(const value_type& val)
             {
                 node *aux = _search(_node, val.first);
                 iterator ret(aux);
                 if (aux != NULL)
-                    return (std::pair<iterator, bool>(ret, true));
+                    return (ft::pair<iterator, bool>(ret, false));
                 else
                 {
                     _insert(val);
@@ -180,7 +183,7 @@ namespace ft
                     aux = _search(val.first);
                     ret = iterator(aux);
                 }
-                std::pair<iterator, bool> par(ret, true);
+                ft::pair<iterator, bool> par(ret, true);
                 return (par);
             }
             
@@ -189,7 +192,7 @@ namespace ft
             {
                 while(first != last)
                 {
-                    insert(first._data);
+                    insert(*first);
                     first++;
                 }
             }
@@ -197,27 +200,15 @@ namespace ft
             iterator insert(iterator position, const value_type& val)
             {
                 iterator aux;
-                _insert(&(*position), val);
-                aux = *(_search(&(*position), val.first));
+                (void)position;
+                insert(val);
+                aux = iterator(_search(val.first));
                 return aux;
             }
 
-            void erase(iterator position)
+            void erase(iterator first, iterator last)
             {
-                _delete(position->first);
-            }
-            
-            size_type erase(const key_type& k)
-            {
-                size_type aux = _size;
-                _delete(k);
-                return (aux - _size);
-            }
-            
-            template <class InputIterator>
-            void erase(typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, iterator last)
-            {
-                InputIterator aux = first;
+                iterator aux = first;
                 size_t i = 0;
                 
                 while (aux != NULL && aux != last)
@@ -235,6 +226,18 @@ namespace ft
                 for (size_t o = 0; o < i; o++)
                     _delete(str[o]);                
             }
+            
+            void erase(iterator position)
+            {
+                _delete(position->first);
+            }
+            
+            size_type erase(const key_type& k)
+            {
+                size_type aux = _size;
+                _delete(k);
+                return (aux - _size);
+            }
 
             void swap (map& x)
             {
@@ -245,17 +248,17 @@ namespace ft
 				this->_size = x._size;
 				x._size = aux.size();
 				this->_allocator = x._allocator;
-				x._comp = aux.get_allocator();
-				x._Data = mp1;
-				this->_Data = mp2;
+				x._comp = aux._comp;
+				x._node = mp1;
+				this->_node = mp2;
 			}
 
             void clear()
             {
-                erase<iterator>(begin(), end());
+                erase(begin(), end());
             }
 
-            //Capacity
+        //Capacity
 
             size_type size() const
             {
@@ -275,7 +278,7 @@ namespace ft
                     return false;
             }
 
-            //Iterator
+        //Iterator
 
             iterator begin()
             {
@@ -341,14 +344,14 @@ namespace ft
                 return aux;
             }
             
-            //get allocator
+        //get allocator
 
             allocator_type get_allocator() const
             {
                 return (this->_allocator);
             }
 
-            //observers
+        //observers
 
             key_compare key_comp() const
             {
@@ -364,7 +367,7 @@ namespace ft
                 return aux;
             }
 
-            // operations
+        // operations
 
             iterator find(const key_type& k)
             {
@@ -381,7 +384,7 @@ namespace ft
             {
                 node *aux;
                 
-                aux = _search(k);
+                aux = this->_search(k);
                 if (aux == NULL)
                     return end();
                 else
@@ -466,13 +469,13 @@ namespace ft
 
         //first calls
             
-            void _delete(key k)
+            void _delete(key_type k)
             {
                 _delete(_node, k);
                 _node->_parent = NULL;
             }
 
-            node *_search(key k)
+            node *_search(key_type const &k) const
             {
                 return(_search(_node, k));
             }            
@@ -487,24 +490,25 @@ namespace ft
 
             //Search function
 
-            node* _search(node* root, key k)
+            node* _search(node* root, key_type const &k) const
             {
-                if (root == NULL || (root->_data.first == k && root->_end == false))
+                if (root == NULL || (!_comp(root->_data.first, k) && !_comp(k, root->_data.first) && root->_end == false))
                     return root;
-                if (root->_data.first < k)
+                if (_comp(root->_data.first, k))
                     return _search(root->_right, k);
-                return _search(root->_left, k);
+                else
+                    return _search(root->_left, k);
             }
 
             //Delete function
             
-            void _delete(node * &root, key k)
+            void _delete(node * &root, key_type k)
             {
                 if (root == NULL || root->_end == true)
                     return ;
-                if (root->_data.first < k)
+                if (_comp(root->_data.first, k))
                     _delete(root->_right, k);
-                else if (root->_data.first > k)
+                else if (_comp(k, root->_data.first))
                     _delete(root->_left, k);
                 else if (root->_left != NULL && root->_right != NULL && root->_left->_end != true && root->_right->_end != true)
                 {
@@ -520,7 +524,7 @@ namespace ft
                         root = root->_right;
                     if (root != NULL && root->_parent)
                         root->_parent = aux->_parent;
-                    if (aux->_right != NULL && (aux->_right->_end == true && root != aux))
+                    if (aux->_right != NULL && aux->_right->_end == true && root != aux && root->_end != true)
                     {
                         biggest(root)->_right = aux->_right;
                         aux->_right->_parent = biggest(root);
@@ -553,12 +557,12 @@ namespace ft
                     aux->_right = root;
                     return (aux);
                 }
-                if (val.first > root->_data.first)
+                if (_comp(root->_data.first, val.first))
                 {
                     root->_right = _insert(root->_right, val);
                     root->_right->_parent = root;
                 }
-                else if (val.first < root->_data.first)
+                else if (_comp(val.first, root->_data.first))
                 {
                     root->_left = _insert(root->_left, val);
                     root->_left->_parent = root;
@@ -574,6 +578,10 @@ namespace ft
             size_type       _size;
             
     };
+
+    // template< class Key, class T, class Compare, class Alloc >
+    // bool operator==(const std::map<Key,T,Compare,Alloc>& lhs, const std::map<Key,T,Compare,Alloc>& rhs)
+    // {}
 }
 
 #endif

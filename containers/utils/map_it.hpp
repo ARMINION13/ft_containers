@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 15:06:21 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/12/28 20:20:53 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/01/25 22:19:50 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,13 @@ namespace ft
     template<class value_type, class node>
     class map_it
     {
+        
         public:
+        
+        typedef value_type v_type;
+        typedef node tree_node;
+        
+        node        *_root;
 
         map_it() : _root(NULL), _current(NULL) {};
         
@@ -30,19 +36,21 @@ namespace ft
             _root = asg;
         }
         
-        map_it(map_it const &asg)
+        template<typename N>
+        map_it(map_it<N, node> const &asg)
         {
             *this = asg;   
         }
         
-        map_it &operator=(const map_it &asg)
+        template<typename N>
+        map_it &operator=(const map_it<N, node> &asg)
         {            
             _root = asg._root;
-            _current = asg._current;
+            _current = asg.base();
             return (*this);
         }
 
-        map_it& operator++()
+        map_it &operator++()
         {
             node *aux;
             
@@ -113,7 +121,7 @@ namespace ft
             return it;
         }
 
-        map_it operator--()
+        map_it &operator--()
         {
             node *aux;
             
@@ -141,9 +149,14 @@ namespace ft
             return &((*_current)._data);
         }
         
-        node &operator*() const
+        value_type &operator*() const
         {
-            return *_current;
+            return _current->_data;
+        }
+
+        node *base() const
+        {
+            return _current;
         }
 		
         bool operator==(const map_it& other) const
@@ -158,16 +171,16 @@ namespace ft
 
         private:
             
-        node        *_root;
         node        *_current; 
     };
     
-    template<class value_type, class node>
+    template<class map_it>
     class reverse_map_it
     {
         public:
         
-        typedef map_it<value_type, node> map_it;
+        typedef typename map_it::v_type value_type;
+        typedef typename map_it::tree_node node;
 
         reverse_map_it() : _it() {};
         
@@ -181,7 +194,8 @@ namespace ft
             _it = asg;   
         }
         
-        reverse_map_it(reverse_map_it const &asg)
+        template<typename N>
+        reverse_map_it(reverse_map_it<N> const &asg)
         {
             *this = asg;
         }
@@ -198,13 +212,19 @@ namespace ft
             return (*this);
         }
 
-        reverse_map_it &operator=(reverse_map_it const &asg)
+        template<typename N>
+        reverse_map_it &operator=(reverse_map_it<N> const &asg)
         {
-            this->_it = asg->_it;
+            this->_it = asg.base();
             return (*this);
         }
 
-        reverse_map_it& operator++()
+        map_it base() const
+        {
+            return _it;
+        }        
+
+        reverse_map_it &operator++()
         {
             _it--;
             return *this;
@@ -224,30 +244,30 @@ namespace ft
             return aux;
         }
 
-        reverse_map_it operator--()
+        reverse_map_it &operator--()
         {
             _it++;
             return *this;
         }
 
-        value_type *operator->()
+        value_type *operator->() const
         {
             return &this->operator*();
         }
         
-        node &operator*()
+        value_type &operator*() const
         {
             map_it _aux = _it;
 			_aux--;
 			return *_aux;
         }
 		
-        bool operator==(const map_it& other) const
+        bool operator==(const reverse_map_it& other) const
 		{
 			return (_it == other._it);
 		}
 		
-        bool operator!=(const map_it& other) const
+        bool operator!=(const reverse_map_it& other) const
 		{
 			return !(_it == other._it);
 		}
