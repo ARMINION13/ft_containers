@@ -146,12 +146,12 @@ namespace ft
         
         value_type *operator->() const
         {
-            return &((*_current)._data);
+            return (_current->_data);
         }
         
         value_type &operator*() const
         {
-            return _current->_data;
+            return *(_current->_data);
         }
 
         node *base() const

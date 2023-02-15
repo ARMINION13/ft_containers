@@ -46,14 +46,14 @@ namespace ft
     };
  
     
-    template<class key, class T, class Compare = std::less<key>, class Alloc = std::allocator<pair<const key, T> > >
+    template<class key, class T, class Compare = std::less<key>, class Alloc = std::allocator<ft::pair<const key, T> > >
     class map
     {
         public:
             
             typedef key key_type;
             typedef T mapped_type;
-            typedef ft::pair<key, T> value_type;
+            typedef ft::pair<const key, T> value_type;
             typedef Compare key_compare;
             
         // value_compare member definition
@@ -142,7 +142,7 @@ namespace ft
                     aux = _search(_node, k);
                     _size++;
                 }
-                return aux->_data.second;
+                return aux->_data->second;
             }
 
             node *biggest(node *root)
@@ -492,9 +492,9 @@ namespace ft
 
             node* _search(node* root, key_type const &k) const
             {
-                if (root == NULL || (!_comp(root->_data.first, k) && !_comp(k, root->_data.first) && root->_end == false))
+                if (root == NULL || (!_comp(root->_data->first, k) && !_comp(k, root->_data->first) && root->_end == false))
                     return root;
-                if (_comp(root->_data.first, k))
+                if (_comp(root->_data->first, k))
                     return _search(root->_right, k);
                 else
                     return _search(root->_left, k);
@@ -506,14 +506,15 @@ namespace ft
             {
                 if (root == NULL || root->_end == true)
                     return ;
-                if (_comp(root->_data.first, k))
+                if (_comp(root->_data->first, k))
                     _delete(root->_right, k);
-                else if (_comp(k, root->_data.first))
+                else if (_comp(k, root->_data->first))
                     _delete(root->_left, k);
                 else if (root->_left != NULL && root->_right != NULL && root->_left->_end != true && root->_right->_end != true)
                 {
-                    root->_data = _find_replace(root->_right)->_data;
-                    _delete(root->_right, root->_data.first);
+                    _allocator.destroy(root->_data);
+                    _allocator.construct(root->_data, *(_find_replace(root->_right)->_data));
+                    _delete(root->_right, root->_data->first);
                 }
                 else
                 {
@@ -530,7 +531,7 @@ namespace ft
                         aux->_right->_parent = biggest(root);
                     }
                     delete aux;
-                    --_size;
+                            --_size;
                 }
             }
 
@@ -549,20 +550,20 @@ namespace ft
                 node *aux;
                 
                 if (!root)
-                    return (new node(val));
+                    return (new node(val, &_allocator));
                 if (root->_end == true)
                 {
-                    aux = new node(val);
+                    aux = new node(val, &_allocator);
                     root->_parent = aux;
                     aux->_right = root;
                     return (aux);
                 }
-                if (_comp(root->_data.first, val.first))
+                if (_comp(root->_data->first, val.first))
                 {
                     root->_right = _insert(root->_right, val);
                     root->_right->_parent = root;
                 }
-                else if (_comp(val.first, root->_data.first))
+                else if (_comp(val.first, root->_data->first))
                 {
                     root->_left = _insert(root->_left, val);
                     root->_left->_parent = root;
