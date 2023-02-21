@@ -117,18 +117,26 @@ namespace ft
 
             map (const map& x)
             {
+                _node = new node();
                 *this = x;
             }
 
             map &operator=(const map &asg)
             {
-                _node = new node();
+                if (&asg == this)
+                    return (*this);
+                if (_node)
+                    this->clear();
                 _size = 0;
                 this->insert(asg.begin(), asg.end());
-                _comp = asg._comp;
-                _allocator = asg._allocator;
-                _size = asg._size;
                 return *this;
+            }
+
+            ~map()
+            {
+                this->clear();
+                if (_node)
+                    delete _node;
             }
 
         //Access element
@@ -530,8 +538,10 @@ namespace ft
                         biggest(root)->_right = aux->_right;
                         aux->_right->_parent = biggest(root);
                     }
+                    aux->_right = NULL;
+                    aux->_left = NULL;
                     delete aux;
-                            --_size;
+                    --_size;
                 }
             }
 

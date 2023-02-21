@@ -21,13 +21,13 @@ namespace ft
             
             node() : _right(NULL), _left(NULL), _parent(NULL), _end(true)
             {
-                _data = new value_type();
+                value_type a;
+                _data = &a;
             }
 
             node(const value_type& val, allocator_type *alloc) : _right(NULL), _left(NULL), _parent(NULL), _end(false)
             {
-                _data = new value_type();
-                alloc->allocate(1);
+                _data = alloc->allocate(1);
                 alloc->construct(_data, val);
                 _allocator = alloc;
             }
@@ -46,6 +46,10 @@ namespace ft
                     _allocator->destroy(_data);
                 	_allocator->deallocate(_data, 1);
                 }
+                if (_right)
+                    delete _right;
+                if (_left)
+                    delete _left;
             }
 
             node &operator=(const node &asg)
@@ -55,7 +59,7 @@ namespace ft
                     _allocator->destroy(_data);
                 	_allocator->deallocate(_data, 1);
                 }
-                _allocator->allocate(1);
+                _data = _allocator->allocate(1);
                 _allocator->construct((_data), asg._data);
                 _right = asg._right;
                 _left = asg._left;
