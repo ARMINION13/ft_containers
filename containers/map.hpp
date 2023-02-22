@@ -591,7 +591,7 @@ namespace ft
     };
 
     // template< class Key, class T, class Compare, class Alloc >
-    // bool operator==(const std::map<Key,T,Compare,Alloc>& lhs, const std::map<Key,T,Compare,Alloc>& rhs)
+    // bool operator==(const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs)
     // {}
 }
 

@@ -10,56 +10,40 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
-
-void leaks_funct()
-{
-	system("leaks VectorTest");
-}
-
 #include "common.hpp"
-#include <list>
 
 #define T1 char
-#define T2 int
-typedef _pair<const T1, T2> T3;
+#define T2 foo<float>
+typedef TESTED_NAMESPACE::map<T1, T2> _map;
+typedef _map::const_iterator const_it;
 
-int main (void)
+static unsigned int i = 0;
+
+void	ft_comp(const _map &mp, const const_it &it1, const const_it &it2)
 {
-	std::list<T3> lst;
+	bool res[2];
 
-	unsigned int lst_size = 7;
-	for (unsigned int i = 0; i < lst_size; ++i)
-		lst.push_back(T3('a' + i, lst_size - i));
-	TESTED_NAMESPACE::map<T1, T2> foo(lst.begin(), lst.end());
+	std::cout << "\t-- [" << ++i << "] --" << std::endl;
+	res[0] = mp.key_comp()(it1->first, it2->first);
+	res[1] = mp.value_comp()(*it1, *it2);
+	std::cout << "with [" << it1->first << " and " << it2->first << "]: ";
+	std::cout << "key_comp: " << res[0] << " | " << "value_comp: " << res[1] << std::endl;
+}
 
-	lst.clear(); lst_size = 4;
-	for (unsigned int i = 0; i < lst_size; ++i)
-		lst.push_back(T3('z' - i, i * 5));
-	TESTED_NAMESPACE::map<T1, T2> bar(lst.begin(), lst.end());
+int		main(void)
+{
+	_map	mp;
 
-	TESTED_NAMESPACE::map<T1, T2>::const_iterator it_foo = foo.begin();
-	TESTED_NAMESPACE::map<T1, T2>::const_iterator it_bar = bar.begin();
+	mp['a'] = 2.3;
+	mp['b'] = 1.4;
+	mp['c'] = 0.3;
+	mp['d'] = 4.2;
+	printSize(mp);
 
-	std::cout << "BEFORE SWAP" << std::endl;
+	for (const_it it1 = mp.begin(); it1 != mp.end(); ++it1)
+		for (const_it it2 = mp.begin(); it2 != mp.end(); ++it2)
+			ft_comp(mp, it1, it2);
 
-	std::cout << "foo contains:" << std::endl;
-	printSize(foo);
-	std::cout << "bar contains:" << std::endl;
-	printSize(bar);
-
-	foo.swap(bar);
-
-	std::cout << "AFTER SWAP" << std::endl;
-
-	std::cout << "foo contains:" << std::endl;
-	printSize(foo);
-	std::cout << "bar contains:" << std::endl;
-	printSize(bar);
-
-	std::cout << "Iterator validity:" << std::endl;
-	std::cout << (it_foo == bar.begin()) << std::endl;
-	std::cout << (it_bar == foo.begin()) << std::endl;
-
+	printSize(mp);
 	return (0);
 }

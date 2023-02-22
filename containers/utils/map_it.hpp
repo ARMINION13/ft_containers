@@ -36,8 +36,13 @@ namespace ft
             _root = asg;
         }
         
+        operator map_it<const value_type, node>(void) const 
+        {
+            return map_it<const value_type,  node>(_current);
+        }
+
         template<typename N>
-        map_it(map_it<N, node> const &asg)
+        map_it(map_it<N, node> &asg)
         {
             *this = asg;   
         }
@@ -49,6 +54,7 @@ namespace ft
             _current = asg.base();
             return (*this);
         }
+
 
         map_it &operator++()
         {
