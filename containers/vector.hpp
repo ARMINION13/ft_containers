@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 17:48:49 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/10/05 17:17:22 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/03/02 22:25:47 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ namespace ft
 				_Allocator = alloc;
 			}
 			
-			void operator=(vector &asg)
+			void operator=(const vector &asg)
 			{
 				this->_Size = asg.size();
 				this->_Capacity = asg.capacity();
