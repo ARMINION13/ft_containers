@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 17:48:49 by rgirondo          #+#    #+#             */
-/*   Updated: 2023/03/02 22:25:47 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/03/08 13:34:01 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include "./utils/vector_it.hpp"
+#include "./utils/enable_if.tpp"
 #include <memory>
 
 namespace ft
@@ -63,7 +64,7 @@ namespace ft
 			}
 			
 			template <class InputIterator>
-			vector (typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last, 
+			vector (typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last, 
 				const allocator_type& alloc = allocator_type())
 			{
 				InputIterator aux = first;;
@@ -272,7 +273,7 @@ namespace ft
 			}
 			
 			template <class InputIterator>
-			void assign(typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
+			void assign(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
 			{
 				InputIterator aux = first;
 				size_type n = 0;
@@ -357,7 +358,7 @@ namespace ft
 			}
 
 			template <class InputIterator>
-   			void insert(iterator position, typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
+   			void insert(iterator position, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
 			{
 				size_type n = 0;
 				for(InputIterator aux = first; aux != last; aux++)

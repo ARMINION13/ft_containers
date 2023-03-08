@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:26:54 by rgirondo          #+#    #+#             */
-/*   Updated: 2023/03/02 22:12:17 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/03/08 13:34:04 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "./utils/map_it.hpp"
 #include "./utils/bst_node.hpp"
 #include "./utils/pair.hpp"
+#include "./utils/enable_if.tpp"
 
 namespace ft
 {
@@ -79,7 +80,7 @@ namespace ft
             }
             
             template <class InputIterator>
-            map (typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first,
+            map (typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first,
              InputIterator last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
             {
                 _node = new node();
@@ -168,7 +169,7 @@ namespace ft
             }
             
             template <class InputIterator>
-            void insert (typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
+            void insert (typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
             {
                 while(first != last)
                 {
