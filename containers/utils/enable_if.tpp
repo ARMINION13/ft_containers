@@ -6,13 +6,14 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 12:32:43 by rgirondo          #+#    #+#             */
-/*   Updated: 2023/03/08 13:42:01 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/03/15 20:18:50 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef _ENABLE_IF_
+#define _ENABLE_IF_
+
 #include <iostream>
-#include <utility>
-#include <memory>
 
 namespace ft
 {
@@ -67,3 +68,5 @@ namespace ft
     struct enable_if<true, T> { typedef T type; };
 
 }
+
+#endif

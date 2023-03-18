@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 17:48:49 by rgirondo          #+#    #+#             */
-/*   Updated: 2023/03/08 13:34:01 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/03/18 18:45:41 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <iostream>
 #include "./utils/vector_it.hpp"
 #include "./utils/enable_if.tpp"
-#include <memory>
+#include "./utils/iterator_traits.hpp"
 
 namespace ft
 {
@@ -486,6 +486,21 @@ namespace ft
 			++b2;
 		}
 		return (b2!=e2);
+	}
+	
+	template <class InputIterator1, class InputIterator2, class Compare>
+	bool lexicographical_compare (InputIterator1 first1, InputIterator1 last1,
+								InputIterator2 first2, InputIterator2 last2,
+								Compare comp)
+	{
+		for ( ; (first1 != last1) && (first2 != last2); ++first1, (void) ++first2)
+		{
+			if (comp(*first1, *first2))
+				return (true);
+			if (comp(*first2, *first1))
+				return (false);
+		}
+		return (first1 == last1) && (first2 != last2);
 	}
 	
 	template <class T, class Alloc>

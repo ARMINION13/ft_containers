@@ -6,13 +6,15 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/01 19:05:35 by rgirondo          #+#    #+#             */
-/*   Updated: 2022/12/28 18:43:29 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/03/15 20:27:52 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef _VECTOR_IT_
+#define _VECTOR_IT_
+
 #include <iostream>
 #include "../vector.hpp"
-#include <memory>
 
 namespace ft
 {
@@ -362,3 +364,5 @@ namespace ft
 			iterator _it;
 	};
 }
+
+#endif

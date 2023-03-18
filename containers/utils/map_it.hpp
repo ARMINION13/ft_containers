@@ -6,13 +6,14 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 15:06:21 by rgirondo          #+#    #+#             */
-/*   Updated: 2023/03/02 19:27:42 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/03/18 15:38:20 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef _MAP_IT_
+#define _MAP_IT_
+
 #include <iostream>
-#include <utility>
-#include <memory>
 #include "../map.hpp"
 
 namespace ft
@@ -152,12 +153,12 @@ namespace ft
         
         value_type *operator->() const
         {
-            return (_current->_data);
+            return &(_current->_data);
         }
         
         value_type &operator*() const
         {
-            return *(_current->_data);
+            return (_current->_data);
         }
 
         node *base() const
@@ -283,3 +284,5 @@ namespace ft
         map_it _it;
     };
 }
+
+#endif

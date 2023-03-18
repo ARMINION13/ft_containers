@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 19:30:55 by rgirondo          #+#    #+#             */
-/*   Updated: 2023/03/08 13:35:18 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/03/15 18:21:04 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,6 @@
 #define _STACK_
 
 #include <iostream>
-#include <utility>
-#include <memory>
-#include <cstddef>
 #include "vector.hpp"
 
 namespace ft
