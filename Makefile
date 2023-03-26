@@ -1,4 +1,4 @@
-NAME = VectorTest
+NAME = ft_containers
 
 all : $(NAME)
 
@@ -37,11 +37,11 @@ test_ft : $(OBJS)
 	$(CXX) $(CPPFLAGS) $(OBJS) -o $@
 
 test_std:
-	@mv ./srcs/type.hpp				./type.hpp
-	@mv ./srcs/iterators/type.hpp	./srcs/type.hpp
-	@clang++ -std=c++98 -Wall -Wextra -Werror srcs/main.cpp -o $@
-	@mv ./srcs/type.hpp				./srcs/iterators/type.hpp
-	@mv ./type.hpp					./srcs/type.hpp
+	@mv ./containers/type.hpp					./type.hpp
+	@mv ./containers/utils/type.hpp				./containers/type.hpp
+	@clang++ -std=c++98 -Wall -Wextra -Werror	main.cpp -o $@
+	@mv ./containers/type.hpp					./containers/utils/type.hpp
+	@mv ./type.hpp								./containers/type.hpp
 
 test_vector:
 	cd srcs/containers_test && bash do.sh vector
@@ -60,5 +60,12 @@ test_stack:
 make fclean:
 	@rm -f $(NAME)
 	@rm -f $(OBJS)
+	@rm -f test_ft
+	@rm -f test_std
+	@rm -f std
+	@rm -f ft
+
 
 re:	fclean all
+
+rtest: fclean test

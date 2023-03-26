@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:26:54 by rgirondo          #+#    #+#             */
-/*   Updated: 2023/03/18 18:19:25 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/03/26 21:23:47 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include "./utils/map_it.hpp"
 #include "./utils/bst_node.hpp"
 #include "./utils/pair.hpp"
-#include "./utils/enable_if.tpp"
+#include "./utils/enable_if.hpp"
 #include "./utils/iterator_traits.hpp"
 
 namespace ft
@@ -253,29 +253,6 @@ namespace ft
             {
                 return _size;
             }
-
-
-            template <class paired>
-            class node_f
-            {
-            	public:
-            		paired				data;
-            
-            		int					_ite;
-            		node_f*				left;
-            		node_f* 				right;
-            		node_f* 				parent;
-            
-            		node_f (paired ref, node_f<paired> *g_parent, int g_ite) : data(ref)
-            		{
-            			left = NULL;
-            			parent = g_parent;
-            			right = NULL;
-            			_ite = g_ite;
-            		}
-            };
-            
-
 
             size_type max_size() const
             {
@@ -602,6 +579,25 @@ namespace ft
                 return root;
             }
 
+            template <class paired>
+            class node_f
+            {
+            	public:
+            		paired				data;
+            
+            		int					_ite;
+            		node_f*				left;
+            		node_f* 				right;
+            		node_f* 				parent;
+            
+            		node_f (paired ref, node_f<paired> *g_parent, int g_ite) : data(ref)
+            		{
+            			left = NULL;
+            			parent = g_parent;
+            			right = NULL;
+            			_ite = g_ite;
+            		}
+            };
             
         private:
             node                *_node;

@@ -6,7 +6,7 @@
 /*   By: rgirondo <rgirondo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 17:48:49 by rgirondo          #+#    #+#             */
-/*   Updated: 2023/03/18 18:45:41 by rgirondo         ###   ########.fr       */
+/*   Updated: 2023/03/26 21:23:58 by rgirondo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <iostream>
 #include "./utils/vector_it.hpp"
-#include "./utils/enable_if.tpp"
+#include "./utils/enable_if.hpp"
 #include "./utils/iterator_traits.hpp"
 
 namespace ft
@@ -53,14 +53,14 @@ namespace ft
 			{
 				size_type j = 2;
 				
+				_Size = n;
 				while (j < n)
 					j = j * 2;
-				_Data = _Allocator.allocate(n + 1);
-				for (size_type i = 0; i < n; i++)
-					_Allocator.construct(_Data + i, val);
-				_Size = n;
 				_Capacity = j;
 				_Allocator = alloc;
+				_Data = _Allocator.allocate(_Capacity);
+				for (size_type i = 0; i < n; i++)
+					_Allocator.construct(_Data + i, val);
 			}
 			
 			template <class InputIterator>
@@ -72,39 +72,44 @@ namespace ft
 
 				while (aux++ != last)
 					n++;
-				_Data = _Allocator.allocate(n + 1);
+				while (j < n)
+					j = j * 2;
+				_Size = n;
+				_Capacity = j;
+				_Allocator = alloc;
+				_Data = _Allocator.allocate(_Capacity);
 				for (size_type i = 0; i < n; i++)
 				{
 					_Allocator.construct(_Data + i, *first);
 					first++;
 				}
-				_Size = n;
-				while (j < n)
-					j = j * 2;
-				_Capacity = j;
-				_Allocator = alloc;
 			}
 			
 			void operator=(const vector &asg)
 			{
+				if (_Data != NULL)
+					this->_Allocator.deallocate(_Data, _Capacity);
+				_Data = NULL;
 				this->_Size = asg.size();
 				this->_Capacity = asg.capacity();
 				this->_Allocator = asg._Allocator;
 
-				this->_Data = this->_Allocator.allocate(this->_Size + 1);
+				this->_Data = this->_Allocator.allocate(this->_Capacity);
 				for (size_type i = 0; i < this->_Size; i++)
 					_Allocator.construct(_Data + i, asg._Data[i]);
 			}			
 			
 			vector(vector &x)
 			{
+				_Data = NULL;
 				_Size = 0;
 				*this = x;
 			}
 
 			~vector()
 			{
-				this->_Allocator.deallocate(_Data, _Size + 1);
+				if (_Data != NULL)
+					this->_Allocator.deallocate(_Data, _Capacity);
 			}
 
 			//Iterator functions
@@ -169,30 +174,25 @@ namespace ft
 				return (_Allocator.max_size());
 			}
 
-			void resize(size_type n, value_type val = value_type())
+			void	resize(size_type n, value_type val = value_type())
 			{
-				value_type *aux;
-				size_type j = 2;
-
 				if (n < _Size)
 				{
-					for (size_type i = n; i < _Size; i++)
-						_Allocator.destroy(_Data + i);
-					_Size = n;
+					while (_Size > n)
+					{
+						_Allocator.destroy(_Data + _Size);
+						_Size--;
+					}
 				}
-				else if (n > _Size)
+				else
 				{
-					aux = _Allocator.allocate(n + 1);
-					for (size_type i = 0; i < n; i++)
-						_Allocator.construct(aux + i, val);
-					for (size_type i = 0; i < _Size; i++)
-						aux[i] = _Data[i];
-					_Allocator.deallocate(_Data, _Size);
-					_Data = aux;
-					_Size = n;
-					while (j < _Size)
-						j = j * 2;
-					_Capacity = j;
+					if (n > _Capacity)
+						reserve(n);
+					while (_Size < n)
+					{
+						_Allocator.construct(_Data + _Size, val);
+						_Size++;
+					}
 				}
 			}
 
@@ -210,9 +210,22 @@ namespace ft
 			}
 
 			void reserve (size_type n)
-			{	
+			{
 				if (n > _Capacity)
-					_Capacity = n;
+				{
+					value_type	*aux;
+					size_type j = 2;
+			
+					while (j < n)
+						j = j * 2;
+					_Capacity = j;
+					aux = _Allocator.allocate(_Capacity);
+					for (size_type i = 0; i < _Size; i++)
+						_Allocator.construct(&aux[i], _Data[i]);
+					if (_Data != NULL)
+						_Allocator.deallocate(_Data, _Capacity);
+					_Data = aux;
+				}
 			}
 
 			//Element access
@@ -292,7 +305,7 @@ namespace ft
 
 			void push_back(const value_type& val)
 			{
-				if (_Size >= _Capacity)
+				if (_Size == _Capacity)
 					this->resize(_Size + 1, val);
 				else
 				{
@@ -327,7 +340,6 @@ namespace ft
 						aux[i++] = *b1;
 					}
 				}
-				this->_Allocator.deallocate(_Data, _Size);
 				*this = aux;
 				return (ret);
 			}
@@ -353,7 +365,6 @@ namespace ft
 						aux[i++] = *b1;
 					}
 				}
-				this->_Allocator.deallocate(_Data, _Size);
 				*this = aux;
 			}
 
@@ -386,7 +397,7 @@ namespace ft
 						aux[i++] = *b1;
 					}
 				}
-				this->_Allocator.deallocate(_Data, _Size);
+				
 				*this = aux;
 			}
 
@@ -404,7 +415,6 @@ namespace ft
 					else
 						aux[i++] = *b1;
 				}
-				this->_Allocator.deallocate(_Data, _Size);
 				*this = aux;
 				ret = &this->at(a);
 				return (ret);
@@ -432,7 +442,6 @@ namespace ft
 					else
 						aux[i++] = *b1;
 				}
-				this->_Allocator.deallocate(_Data, _Size);
 				*this = aux;
 				ret = &this->at(a);
 				return (ret);
